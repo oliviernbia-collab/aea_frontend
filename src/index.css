@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --aea-primary: #1e3a8a;
+  --aea-primary-dark: #172a63;
+  --aea-accent: #f59e0b;
+  --aea-bg: #f8fafc;
+  --aea-bg-dark: #0f172a;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgb(148 163 184);
+  border-radius: 9999px;
+}
+
+/* Accent horizontal sur tous les cadres blancs (cartes, panneaux, modales) de l'application */
+.rounded-xl.bg-white,
+.rounded-2xl.bg-white {
+  border-top: 3px solid var(--aea-primary);
+}
+
+.badge-paye { @apply bg-green-500 text-white dark:bg-green-500 dark:text-white; }
+.badge-partiel { @apply bg-orange-500 text-white dark:bg-orange-500 dark:text-white; }
+.badge-non-paye { @apply bg-red-500 text-white dark:bg-red-500 dark:text-white; }
+.badge-non-du { @apply bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Deplacement flottant sans direction fixe sur toute la page (plusieurs points de passage irreguliers en vw/vh) + rotation continue */
+@keyframes roam-a {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  16%  { transform: translate(34vw, 14vh) rotate(58deg); }
+  33%  { transform: translate(18vw, 52vh) rotate(120deg); }
+  50%  { transform: translate(48vw, 38vh) rotate(180deg); }
+  67%  { transform: translate(58vw, 8vh) rotate(245deg); }
+  84%  { transform: translate(22vw, -6vh) rotate(305deg); }
+  100% { transform: translate(0, 0) rotate(360deg); }
+}
+@keyframes roam-b {
+  0%   { transform: translate(0, 0) rotate(360deg); }
+  16%  { transform: translate(-30vw, 12vh) rotate(302deg); }
+  33%  { transform: translate(-52vw, -18vh) rotate(240deg); }
+  50%  { transform: translate(-20vw, -42vh) rotate(180deg); }
+  67%  { transform: translate(-46vw, -10vh) rotate(120deg); }
+  84%  { transform: translate(-14vw, 16vh) rotate(60deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+.animate-roam-a { animation: roam-a 42s ease-in-out infinite; }
+.animate-roam-b { animation: roam-b 50s ease-in-out infinite; }
