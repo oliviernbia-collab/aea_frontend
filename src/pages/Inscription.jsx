@@ -75,7 +75,7 @@ export default function Inscription() {
                     name={c.name}
                     onChange={change}
                     defaultValue=""
-                    className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent py-2 px-3 text-sm focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 py-2 px-3 text-sm focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
                   >
                     <option value="" disabled>Selectionner...</option>
                     {PROMOTIONS.map((p) => (

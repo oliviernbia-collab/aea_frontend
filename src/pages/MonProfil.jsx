@@ -3,6 +3,7 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import PasswordInput from '../components/PasswordInput';
+import BadgeMembre from '../components/BadgeMembre';
 
 export default function MonProfil() {
   const { user, refresh } = useAuth();
@@ -120,6 +121,8 @@ export default function MonProfil() {
           <p className="text-sm text-slate-400">{user.numero_membre} - {user.role.replace('_', ' ')}</p>
         </div>
       </div>
+
+      <BadgeMembre user={user} />
 
       <div className="grid gap-6 lg:grid-cols-2 items-start">
         <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow">

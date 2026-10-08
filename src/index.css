@@ -8,6 +8,11 @@
   --aea-accent: #f59e0b;
   --aea-bg: #f8fafc;
   --aea-bg-dark: #0f172a;
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 html, body, #root {

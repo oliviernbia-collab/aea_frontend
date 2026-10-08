@@ -3,6 +3,7 @@ import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 import PasswordInput from '../components/PasswordInput';
 import useLiveRefresh from '../hooks/useLiveRefresh';
+import { MOYENS_PAIEMENT } from '../constants/moyensPaiement';
 
 const ROLES = [
   { value: 'membre', label: 'Membre' },
@@ -21,7 +22,10 @@ export default function Administration() {
   const [enAttente, setEnAttente] = useState([]);
   const [membres, setMembres] = useState([]);
   const [adhesions, setAdhesions] = useState([]);
-  const [config, setConfig] = useState({ annee: new Date().getFullYear(), montant_membre: 500, montant_bureau: 1000, montant_adhesion: 1000 });
+  const [config, setConfig] = useState({
+    annee: new Date().getFullYear(), montant_membre: 500, montant_bureau: 1000, montant_adhesion: 1000,
+    numero_wave: '', numero_mtn_momo: '', numero_orange_money: '', numero_moov_money: '',
+  });
   const [configMsg, setConfigMsg] = useState('');
 
   const [showCreate, setShowCreate] = useState(false);
@@ -193,12 +197,12 @@ export default function Administration() {
                 <tr key={m.id} className="border-b border-slate-50 dark:border-slate-700/50">
                   <td className="py-2 pr-2">{m.prenom} {m.nom}<span className="block text-xs text-slate-400">{m.numero_membre}</span></td>
                   <td className="py-2 pr-2">
-                    <select value={m.statut} onChange={(e) => changerStatut(m.id, e.target.value)} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-2 py-1 text-xs">
+                    <select value={m.statut} onChange={(e) => changerStatut(m.id, e.target.value)} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-2 py-1 text-xs">
                       {STATUTS.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </td>
                   <td className="py-2 pr-2">
-                    <select value={m.role} onChange={(e) => changerRole(m.id, e.target.value)} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-2 py-1 text-xs">
+                    <select value={m.role} onChange={(e) => changerRole(m.id, e.target.value)} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-2 py-1 text-xs">
                       {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
                     </select>
                   </td>
@@ -241,6 +245,28 @@ export default function Administration() {
               <label className="text-xs text-slate-500">Cotisation mensuelle - Roles du bureau (FCFA)</label>
               <input type="number" value={config.montant_bureau} onChange={(e) => setConfig((c) => ({ ...c, montant_bureau: Number(e.target.value) }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
             </div>
+
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-700">
+              <p className="text-sm font-medium mb-2">Numeros Mobile Money de l'association</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                Affiches aux membres pour qu'ils sachent ou envoyer leur paiement avant de le declarer.
+              </p>
+              <div className="space-y-2">
+                {MOYENS_PAIEMENT.map((m) => (
+                  <div key={m.value} className="flex items-center gap-2">
+                    <img src={m.logo} alt={m.label} className="h-6 w-6 object-contain shrink-0" />
+                    <input
+                      type="tel"
+                      placeholder={`Numero ${m.label}`}
+                      value={config[m.configKey] || ''}
+                      onChange={(e) => setConfig((c) => ({ ...c, [m.configKey]: e.target.value }))}
+                      className="flex-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <button type="submit" className="w-full rounded-lg bg-blue-800 text-white py-2 text-sm font-semibold">Enregistrer</button>
           </form>
         </div>
@@ -289,13 +315,13 @@ export default function Administration() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-slate-500">Role</label>
-                    <select value={createForm.role} onChange={(e) => setCreateForm((f) => ({ ...f, role: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm">
+                    <select value={createForm.role} onChange={(e) => setCreateForm((f) => ({ ...f, role: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
                       {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="text-xs text-slate-500">Statut</label>
-                    <select value={createForm.statut} onChange={(e) => setCreateForm((f) => ({ ...f, statut: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm">
+                    <select value={createForm.statut} onChange={(e) => setCreateForm((f) => ({ ...f, statut: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
                       {STATUTS.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>

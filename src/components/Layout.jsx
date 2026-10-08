@@ -5,29 +5,21 @@ import Logo from './Logo';
 import NotificationBell from './NotificationBell';
 
 const NAV_ITEMS = [
-  { to: '/accueil', label: 'Accueil', icon: 'fa-house', roles: null },
-  { to: '/caisse', label: 'Caisse', icon: 'fa-wallet', roles: null },
-  { to: '/cotisations', label: 'Cotisations', icon: 'fa-table-list', roles: null },
-  { to: '/cotisations/ma-fiche', label: 'Ma cotisation', icon: 'fa-user-check', roles: null },
-  { to: '/actualites', label: 'Actualites', icon: 'fa-newspaper', roles: null },
-  { to: '/messagerie', label: 'Messagerie', icon: 'fa-comments', roles: null },
-  { to: '/annuaire', label: 'Annuaire', icon: 'fa-address-book', roles: null },
-  {
-    to: '/saisie-financiere',
-    label: 'Saisie financiere',
-    icon: 'fa-file-invoice-dollar',
-    roles: ['tresorier', 'president', 'super_admin'],
-  },
-  {
-    to: '/administration',
-    label: 'Administration',
-    icon: 'fa-gear',
-    roles: ['super_admin', 'president', 'secretaire_general'],
-  },
+  { to: '/accueil', label: 'Accueil', icon: 'fa-house', permission: null },
+  { to: '/caisse', label: 'Caisse', icon: 'fa-wallet', permission: null },
+  { to: '/cotisations', label: 'Cotisations', icon: 'fa-table-list', permission: null },
+  { to: '/cotisations/ma-fiche', label: 'Ma cotisation', icon: 'fa-user-check', permission: null },
+  { to: '/actualites', label: 'Actualites', icon: 'fa-newspaper', permission: null },
+  { to: '/messagerie', label: 'Messagerie', icon: 'fa-comments', permission: null },
+  { to: '/annuaire', label: 'Annuaire', icon: 'fa-address-book', permission: null },
+  { to: '/saisie-financiere', label: 'Saisie financiere', icon: 'fa-file-invoice-dollar', permission: 'saisie_financiere.acceder' },
+  { to: '/administration', label: 'Administration', icon: 'fa-gear', permission: 'administration.acceder' },
+  { to: '/journal-activite', label: "Journal d'activite", icon: 'fa-clock-rotate-left', permission: 'journal.consulter' },
+  { to: '/gestion-permissions', label: 'Gestion des permissions', icon: 'fa-user-shield', permission: 'permissions.gerer' },
 ];
 
 export default function Layout() {
-  const { user, logout, isBureau } = useAuth();
+  const { user, logout, isBureau, hasPermission } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dark, setDark] = useState(() => localStorage.getItem('aea_theme') === 'dark');
@@ -37,7 +29,9 @@ export default function Layout() {
     localStorage.setItem('aea_theme', dark ? 'dark' : 'light');
   }, [dark]);
 
-  const items = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(user?.role));
+  const items = NAV_ITEMS.filter(
+    (item) => !item.permission || user?.role === 'super_admin' || hasPermission(item.permission)
+  );
 
   const handleLogout = () => {
     logout();

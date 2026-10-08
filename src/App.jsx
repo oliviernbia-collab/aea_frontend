@@ -18,6 +18,8 @@ import Annuaire from './pages/Annuaire';
 import SaisieFinanciere from './pages/SaisieFinanciere';
 import Administration from './pages/Administration';
 import MonProfil from './pages/MonProfil';
+import JournalActivite from './pages/JournalActivite';
+import GestionPermissions from './pages/GestionPermissions';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -56,7 +58,7 @@ export default function App() {
         <Route
           path="/saisie-financiere"
           element={
-            <ProtectedRoute roles={['tresorier', 'president', 'super_admin']}>
+            <ProtectedRoute permission="saisie_financiere.acceder">
               <SaisieFinanciere />
             </ProtectedRoute>
           }
@@ -64,8 +66,24 @@ export default function App() {
         <Route
           path="/administration"
           element={
-            <ProtectedRoute roles={['super_admin', 'president', 'secretaire_general']}>
+            <ProtectedRoute permission="administration.acceder">
               <Administration />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/journal-activite"
+          element={
+            <ProtectedRoute permission="journal.consulter">
+              <JournalActivite />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/gestion-permissions"
+          element={
+            <ProtectedRoute permission="permissions.gerer">
+              <GestionPermissions />
             </ProtectedRoute>
           }
         />

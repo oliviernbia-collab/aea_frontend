@@ -11,7 +11,17 @@ export function AuthProvider({ children }) {
     const saved = localStorage.getItem('aea_user');
     return saved ? JSON.parse(saved) : null;
   });
+  const [permissions, setPermissions] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const chargerPermissions = useCallback(async () => {
+    try {
+      const { data } = await api.get('/permissions/mine');
+      setPermissions(data.permissions || {});
+    } catch (err) {
+      setPermissions({});
+    }
+  }, []);
 
   const refresh = useCallback(async () => {
     const token = localStorage.getItem('aea_token');
@@ -24,6 +34,7 @@ export function AuthProvider({ children }) {
       setUser(data);
       localStorage.setItem('aea_user', JSON.stringify(data));
       connectSocket();
+      await chargerPermissions();
     } catch (err) {
       localStorage.removeItem('aea_token');
       localStorage.removeItem('aea_user');
@@ -31,7 +42,7 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [chargerPermissions]);
 
   useEffect(() => {
     refresh();
@@ -46,6 +57,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('aea_user', JSON.stringify(data.user));
     setUser(data.user);
     connectSocket();
+    await chargerPermissions();
     return { user: data.user };
   };
 
@@ -55,6 +67,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('aea_user', JSON.stringify(data.user));
     setUser(data.user);
     connectSocket();
+    await chargerPermissions();
     return data.user;
   };
 
@@ -62,13 +75,17 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('aea_token');
     localStorage.removeItem('aea_user');
     setUser(null);
+    setPermissions({});
     disconnectSocket();
   };
 
   const isBureau = user ? BUREAU_ROLES.includes(user.role) : false;
+  const hasPermission = useCallback((key) => !!permissions[key], [permissions]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, verifierCodeDeuxFA, logout, refresh, isBureau }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, verifierCodeDeuxFA, logout, refresh, isBureau, permissions, hasPermission, rechargerPermissions: chargerPermissions }}
+    >
       {children}
     </AuthContext.Provider>
   );

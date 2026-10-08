@@ -126,11 +126,11 @@ export default function SaisieFinanciere() {
           {opMsg && <p className="mb-3 text-sm text-green-700 dark:text-green-300">{opMsg}</p>}
           <form onSubmit={soumettreOperation} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <select value={opForm.type} onChange={(e) => setOpForm((f) => ({ ...f, type: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm">
+              <select value={opForm.type} onChange={(e) => setOpForm((f) => ({ ...f, type: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
                 <option value="entree">Entree</option>
                 <option value="sortie">Sortie (depense)</option>
               </select>
-              <select value={opForm.fonds} onChange={(e) => setOpForm((f) => ({ ...f, fonds: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm">
+              <select value={opForm.fonds} onChange={(e) => setOpForm((f) => ({ ...f, fonds: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
                 <option value="fonctionnement">Fonctionnement</option>
                 <option value="entraide">Entraide</option>
                 <option value="evenements">Evenements</option>
@@ -157,7 +157,7 @@ export default function SaisieFinanciere() {
           <h2 className="font-semibold mb-3">Enregistrer un paiement de cotisation</h2>
           {paieMsg && <p className="mb-3 text-sm text-green-700 dark:text-green-300">{paieMsg}</p>}
           <form onSubmit={soumettrePaiement} className="space-y-3">
-            <select required value={paieForm.membre_id} onChange={(e) => setPaieForm((f) => ({ ...f, membre_id: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm">
+            <select required value={paieForm.membre_id} onChange={(e) => setPaieForm((f) => ({ ...f, membre_id: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
               <option value="">Selectionner un membre</option>
               {membres.map((m) => <option key={m.id} value={m.id}>{m.prenom} {m.nom} ({m.numero_membre})</option>)}
             </select>
@@ -165,7 +165,7 @@ export default function SaisieFinanciere() {
               <input required type="number" placeholder="Montant (FCFA)" value={paieForm.montant} onChange={(e) => setPaieForm((f) => ({ ...f, montant: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
               <input required type="date" value={paieForm.date_paiement} onChange={(e) => setPaieForm((f) => ({ ...f, date_paiement: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
             </div>
-            <select value={paieForm.mode_paiement} onChange={(e) => setPaieForm((f) => ({ ...f, mode_paiement: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm">
+            <select value={paieForm.mode_paiement} onChange={(e) => setPaieForm((f) => ({ ...f, mode_paiement: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
               <option value="especes">Especes</option>
               <option value="orange_money">Orange Money</option>
               <option value="mtn_momo">MTN MoMo</option>
