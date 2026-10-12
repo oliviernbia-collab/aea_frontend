@@ -10,20 +10,35 @@ const HAUTEUR = 214; // ratio CR80 (85,6 x 54 mm)
 // Theme visuel par role (couleur du badge) ; le statut 'honoraire' prend le pas sur le role.
 function getTheme(role, statut) {
   if (statut === 'honoraire') {
-    return { couleur: '#B8860B', couleurFonce: '#7c5a07', pills: [{ texte: "MEMBRE D'HONNEUR", bg: '#B8860B' }] };
+    return {
+      couleur: '#B8860B',
+      couleurFonce: '#7c5a07',
+      pills: [{ texte: "MEMBRE D'HONNEUR", bg: '#B8860B' }],
+    };
   }
   const BUREAU = {
-    president: { couleur: '#dc2626', couleurFonce: '#7f1d1d', label: 'PRESIDENT(E)' },
-    secretaire_general: { couleur: '#16a34a', couleurFonce: '#14532d', label: 'SECRETAIRE GENERAL(E)' },
-    tresorier: { couleur: '#2563eb', couleurFonce: '#1e3a8a', label: 'TRESORIER(ERE)' },
-    resp_communication: { couleur: '#9333ea', couleurFonce: '#581c87', label: 'RESP. COMMUNICATION' },
+    president: { couleur: '#dc2626', couleurFonce: '#7f1d1d', label: 'PRÉSIDENT(E)' },
+    secretaire_general: { couleur: '#16a34a', couleurFonce: '#14532d', label: 'SECRÉTAIRE GÉNÉRAL(E)' },
+    tresorier: { couleur: '#2563eb', couleurFonce: '#1e3a8a', label: 'TRÉSORIER(ÈRE)' },
+    resp_communication: { couleur: '#9333ea', couleurFonce: '#581c87', label: 'RESPONSABLE COMMUNICATION' },
     super_admin: { couleur: '#334155', couleurFonce: '#0f172a', label: 'SUPER ADMINISTRATEUR' },
   };
   if (BUREAU[role]) {
     const b = BUREAU[role];
-    return { couleur: b.couleur, couleurFonce: b.couleurFonce, pills: [{ texte: b.label, bg: b.couleur }, { texte: 'BUREAU EXECUTIF', bg: '#64748b' }] };
+    return {
+      couleur: b.couleur,
+      couleurFonce: b.couleurFonce,
+      pills: [{ texte: b.label, bg: b.couleur }, { texte: 'BUREAU EXÉCUTIF', bg: '#1e293b' }],
+    };
   }
-  return { couleur: '#dc2626', couleurFonce: '#7f1d1d', pills: [{ texte: 'CARTE DE MEMBRE', bg: '#dc2626' }, { texte: 'MEMBRE ACTIF', bg: '#d97706' }] };
+  return {
+    couleur: '#dc2626',
+    couleurFonce: '#7f1d1d',
+    pills: [
+      { texte: 'CARTE DE MEMBRE', bg: '#dc2626' },
+      { texte: statut === 'actif' ? 'MEMBRE ACTIF' : (statut || 'MEMBRE').toUpperCase(), bg: '#d97706' },
+    ],
+  };
 }
 
 function anneeAcademiqueParDefaut() {
@@ -42,11 +57,56 @@ function declencherTelechargement(dataUrl, nomFichier) {
 }
 
 const ICONES_VALEURS = [
-  { icone: 'fa-book-open', mot: 'EDUQUER' },
+  { icone: 'fa-book-open', mot: 'ÉDUQUER' },
   { icone: 'fa-handshake', mot: 'UNIR' },
   { icone: 'fa-lightbulb', mot: 'INNOVER' },
   { icone: 'fa-people-group', mot: 'SERVIR' },
 ];
+
+// Triangle sombre decoratif, present dans le coin superieur gauche de chaque face.
+function CoinDecoratif() {
+  return (
+    <div
+      className="absolute top-0 left-0 pointer-events-none"
+      style={{
+        width: 60,
+        height: 60,
+        background: 'linear-gradient(135deg, #1e293b 0%, #020617 100%)',
+        clipPath: 'polygon(0 0, 100% 0, 0 100%)',
+      }}
+    />
+  );
+}
+
+// Vague colorée decorative en bas de carte, teintee selon le theme du role.
+function VagueDecorative({ couleur, couleurFonce }) {
+  return (
+    <svg
+      className="absolute bottom-0 left-0 w-full pointer-events-none"
+      style={{ height: 50 }}
+      viewBox="0 0 340 50"
+      preserveAspectRatio="none"
+    >
+      <path d="M0,22 C65,48 125,2 185,16 C245,30 300,6 340,20 L340,50 L0,50 Z" fill={couleurFonce} opacity="0.35" />
+      <path d="M0,32 C70,52 135,12 205,26 C265,38 310,16 340,30 L340,50 L0,50 Z" fill={couleur} />
+    </svg>
+  );
+}
+
+// Signature stylisee (paraphe) rendue en SVG pour un rendu fiable a l'export PNG.
+function Signature({ couleur = '#111827' }) {
+  return (
+    <svg width="58" height="16" viewBox="0 0 58 16" fill="none">
+      <path
+        d="M2,13 C7,3 10,15 15,7 C19,1 22,14 27,9 C31,5 34,14 39,9 C43,5 45,13 50,8 C53,5 54,10 56,7"
+        stroke={couleur}
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
 
 export default function BadgeMembre({ user }) {
   const { showToast } = useToast();
@@ -98,80 +158,142 @@ export default function BadgeMembre({ user }) {
           {/* RECTO */}
           <div
             ref={rectoRef}
-            style={{ width: LARGEUR, height: HAUTEUR }}
-            className="relative rounded-2xl overflow-hidden shadow-lg bg-white border border-slate-200"
+            style={{ width: LARGEUR, height: HAUTEUR, fontFamily: "'Segoe UI', Arial, sans-serif" }}
+            className="relative rounded-[18px] overflow-hidden shadow-lg bg-white border border-slate-200"
           >
-            <div className="flex items-center gap-2 px-3 pt-3">
-              <img src={logoAEA} alt="AEA" crossOrigin="anonymous" className="w-9 h-9 rounded-full object-cover border-2" style={{ borderColor: theme.couleur }} />
-              <div className="leading-tight">
-                <p className="text-[8px] font-bold text-slate-900" style={{ letterSpacing: '0.4px' }}>ASSOCIATION DES ETUDIANTS</p>
-                <p className="text-[8px] font-bold text-slate-900" style={{ letterSpacing: '0.4px' }}>D'ASSOUMOUKRO</p>
+            <CoinDecoratif />
+            <VagueDecorative couleur={theme.couleur} couleurFonce={theme.couleurFonce} />
+
+            {/* Entete */}
+            <div className="relative z-10 flex items-center gap-2 px-3 pt-3">
+              <img
+                src={logoAEA}
+                alt="AEA"
+                crossOrigin="anonymous"
+                className="w-10 h-10 rounded-full object-cover border-2 shadow-sm shrink-0"
+                style={{ borderColor: theme.couleur }}
+              />
+              <div className="leading-[1.1] min-w-0">
+                <p className="text-[6.5px] font-bold text-slate-900 tracking-wide">ASSOCIATION DES</p>
+                <p className="text-[12px] font-extrabold leading-none" style={{ color: theme.couleur }}>ÉTUDIANTS</p>
+                <p className="text-[8px] font-bold text-slate-900 tracking-wide">D'ASSOUMOUKRO</p>
               </div>
             </div>
-            <p className="text-center text-[6px] tracking-widest text-slate-400 mt-1">UNITE &bull; SOLIDARITE &bull; EXCELLENCE</p>
-            <div className="h-[2px] mx-3 mt-1" style={{ background: theme.couleur }} />
+            <p className="relative z-10 text-center text-[5.5px] font-semibold tracking-[1.5px] text-slate-400 mt-1">
+              UNITÉ &bull; SOLIDARITÉ &bull; EXCELLENCE
+            </p>
+            <div className="relative z-10 h-[1.5px] mx-3 mt-1 rounded-full" style={{ background: `linear-gradient(90deg, ${theme.couleur}, transparent)` }} />
 
-            <div className="flex gap-2 px-3 mt-2">
+            {/* Contenu */}
+            <div className="relative z-10 flex gap-2 px-3 mt-2">
               {photoSrc ? (
-                <img src={photoSrc} alt="" crossOrigin="anonymous" className="w-16 h-20 object-cover rounded-lg border border-slate-200 shrink-0" />
+                <img
+                  src={photoSrc}
+                  alt=""
+                  crossOrigin="anonymous"
+                  className="w-16 h-[72px] object-cover rounded-lg border-2 shrink-0 shadow-sm"
+                  style={{ borderColor: theme.couleur }}
+                />
               ) : (
-                <div className="w-16 h-20 rounded-lg border border-slate-200 bg-slate-100 flex items-center justify-center shrink-0">
+                <div
+                  className="w-16 h-[72px] rounded-lg border-2 bg-slate-100 flex items-center justify-center shrink-0"
+                  style={{ borderColor: theme.couleur }}
+                >
                   <i className="fa-solid fa-user text-2xl text-slate-300" />
                 </div>
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap gap-1 mb-1">
                   {theme.pills.map((p) => (
-                    <span key={p.texte} className="text-[6px] font-bold text-white px-1.5 py-0.5 rounded" style={{ background: p.bg }}>
+                    <span
+                      key={p.texte}
+                      className="text-[5.5px] font-bold text-white px-1.5 py-[2px] rounded-full whitespace-nowrap"
+                      style={{ background: p.bg }}
+                    >
                       {p.texte}
                     </span>
                   ))}
                 </div>
-                <p className="text-[11px] font-bold text-slate-900 leading-tight uppercase truncate">{prenomBadge} {nomBadge}</p>
-                <p className="text-[7px] text-slate-400 mt-1">N&deg; MEMBRE</p>
-                <p className="text-[9px] font-semibold text-slate-700">{user.numero_membre}</p>
-                <p className="text-[7px] text-slate-400 mt-1">ANNEE ACADEMIQUE</p>
-                <p className="text-[8px] font-semibold" style={{ color: theme.couleur }}>{anneeAcademique}</p>
+                <p className="text-[10.5px] font-extrabold text-slate-900 leading-tight uppercase truncate">
+                  {prenomBadge} {nomBadge}
+                </p>
+                <p className="text-[6px] text-slate-400 mt-[3px] leading-none">N&deg; MEMBRE</p>
+                <p className="text-[8px] font-bold text-slate-700 leading-tight">{user.numero_membre}</p>
+
+                <div className="flex items-center gap-1 mt-[3px]">
+                  <i className="fa-solid fa-graduation-cap text-[7px]" style={{ color: theme.couleur }} />
+                  <p className="text-[5.5px] text-slate-400 leading-none">ANNÉE ACADÉMIQUE</p>
+                </div>
+                <p className="text-[7px] font-bold leading-tight" style={{ color: theme.couleur }}>{anneeAcademique}</p>
+
+                <div className="flex items-center gap-1 mt-[3px]">
+                  <i className="fa-solid fa-location-dot text-[7px]" style={{ color: theme.couleur }} />
+                  <p className="text-[5.5px] text-slate-400 leading-none">ASSOUMOUKRO, CÔTE D'IVOIRE</p>
+                </div>
               </div>
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between px-3 pb-2">
-              <div className="bg-white p-0.5 rounded">
-                <QRCodeSVG value={qrValue} size={34} level="M" />
+            {/* Pied de carte : QR + signature, sur la vague coloree */}
+            <div className="absolute bottom-0 left-0 right-0 z-10 flex items-end justify-between px-3 pb-2">
+              <div className="bg-white p-[3px] rounded-md border" style={{ borderColor: theme.couleur }}>
+                <QRCodeSVG
+                  value={qrValue}
+                  size={34}
+                  level="H"
+                  imageSettings={{ src: logoAEA, height: 10, width: 10, excavate: true }}
+                />
               </div>
-              <p className="text-[6px] text-slate-400 text-right leading-tight">ASSOUMOUKRO<br />COTE D'IVOIRE</p>
+              <div className="flex flex-col items-end">
+                <Signature couleur="#ffffff" />
+                <p className="text-[5.5px] font-semibold text-white drop-shadow leading-none mt-[1px]">Le Président</p>
+              </div>
             </div>
           </div>
 
           {/* VERSO */}
           <div
             ref={versoRef}
-            style={{ width: LARGEUR, height: HAUTEUR, background: `linear-gradient(135deg, ${theme.couleur}, ${theme.couleurFonce})` }}
-            className="relative rounded-2xl overflow-hidden shadow-lg p-3 text-white"
+            style={{ width: LARGEUR, height: HAUTEUR, fontFamily: "'Segoe UI', Arial, sans-serif" }}
+            className="relative rounded-[18px] overflow-hidden shadow-lg bg-white border border-slate-200 p-3"
           >
-            <div className="flex items-center gap-2 mb-2">
-              <img src={logoAEA} alt="AEA" crossOrigin="anonymous" className="w-6 h-6 rounded-full object-cover border border-white/60" />
-              <p className="font-bold text-[10px]">AEA</p>
+            <CoinDecoratif />
+            <VagueDecorative couleur={theme.couleur} couleurFonce={theme.couleurFonce} />
+
+            <div className="relative z-10 flex items-center gap-2">
+              <img src={logoAEA} alt="AEA" crossOrigin="anonymous" className="w-7 h-7 rounded-full object-cover border-2" style={{ borderColor: theme.couleur }} />
+              <p className="font-extrabold text-[11px] text-slate-900">AEA</p>
             </div>
-            <h3 className="font-bold text-[11px]">NOTRE MISSION</h3>
-            <p className="text-[6.5px] leading-snug mt-1 opacity-90">
+
+            <h3 className="relative z-10 font-extrabold text-[11px] mt-2" style={{ color: theme.couleur }}>NOTRE MISSION</h3>
+            <p className="relative z-10 text-[6.3px] leading-snug mt-[3px] text-slate-600 max-w-[240px]">
               Promouvoir l'union, la solidarite, l'excellence academique et le developpement integral des etudiants d'Assoumoukro.
             </p>
-            <div className="grid grid-cols-4 gap-1 mt-2 text-center">
+
+            <div className="relative z-10 grid grid-cols-4 gap-1 mt-2 text-center max-w-[220px]">
               {ICONES_VALEURS.map((v) => (
-                <div key={v.mot}>
-                  <i className={`fa-solid ${v.icone} text-[11px]`} />
-                  <p className="text-[5px] font-semibold mt-0.5">{v.mot}</p>
+                <div key={v.mot} className="flex flex-col items-center">
+                  <div className="w-6 h-6 rounded-full border flex items-center justify-center mb-[2px]" style={{ borderColor: theme.couleur }}>
+                    <i className={`fa-solid ${v.icone} text-[8px]`} style={{ color: theme.couleur }} />
+                  </div>
+                  <p className="text-[5px] font-bold text-slate-700">{v.mot}</p>
                 </div>
               ))}
             </div>
-            <p className="text-[5px] opacity-80 mt-2 leading-snug text-center px-1">
+
+            <p className="relative z-10 text-[5px] text-slate-400 mt-2 leading-snug max-w-[250px]">
               CETTE CARTE EST STRICTEMENT PERSONNELLE ET NON TRANSFERABLE. ELLE RESTE LA PROPRIETE DE L'AEA.
               EN CAS DE PERTE, CONTACTEZ LE BUREAU.
             </p>
-            <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between text-[5.5px] opacity-90">
-              <span><i className="fa-brands fa-facebook-f mr-1" />AEA - ASSOUMOUKRO</span>
-              <span><i className="fa-solid fa-envelope mr-1" />contact@aea-assoumoukro.org</span>
+
+            <div className="absolute bottom-0 left-0 right-0 z-10 flex items-end justify-between px-3 pb-2">
+              <div className="text-[5.5px] font-semibold leading-tight" style={{ color: theme.couleur }}>
+                <p><i className="fa-brands fa-facebook-f mr-1" />AEA - ASSOUMOUKRO</p>
+                <p className="mt-[1px]"><i className="fa-solid fa-envelope mr-1" />contact@aea-assoumoukro.org</p>
+              </div>
+              <div className="flex flex-col items-end">
+                <Signature />
+                <p className="text-[5.5px] font-semibold text-slate-700 leading-none mt-[1px]">Le Président</p>
+              </div>
             </div>
           </div>
         </div>
@@ -202,7 +324,8 @@ export default function BadgeMembre({ user }) {
           <button
             onClick={telecharger}
             disabled={telechargement}
-            className="w-full rounded-lg bg-blue-800 text-white py-2 text-sm font-semibold disabled:opacity-60"
+            className="w-full rounded-lg text-white py-2 text-sm font-semibold disabled:opacity-60 transition"
+            style={{ background: theme.couleur }}
           >
             {telechargement ? <i className="fa-solid fa-circle-notch fa-spin" /> : <><i className="fa-solid fa-download mr-1" /> Telecharger mon badge</>}
           </button>
