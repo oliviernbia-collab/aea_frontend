@@ -21,13 +21,13 @@ jobs:
 
       # Copie le build (dist/) dans le dossier public/ du backend : les deux applications
       # tournent comme un seul déploiement Node (voir src/app.js, express.static(public/)).
-      - name: Publier dist/ vers le serveur
-        uses: burnett01/rsync-deployments@7.0.1
+      - name: Publier dist/ par FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          switches: -avzr --delete
-          path: dist/
-          remote_path: ${{ secrets.DEPLOY_PATH }}/public/
-          remote_host: ${{ secrets.DEPLOY_HOST }}
-          remote_port: ${{ secrets.DEPLOY_PORT }}
-          remote_user: ${{ secrets.DEPLOY_USER }}
-          remote_key: ${{ secrets.DEPLOY_SSH_KEY }}
+          server: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./dist/
+          server-dir: ${{ secrets.DEPLOY_PATH }}/public/
