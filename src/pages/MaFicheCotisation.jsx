@@ -4,10 +4,12 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import useLiveRefresh from '../hooks/useLiveRefresh';
 import { MOYENS_PAIEMENT } from '../constants/moyensPaiement';
+import { genererRecuPDF } from '../utils/recu';
+import { STATUT_COTISATION_LABELS, STATUT_VALIDATION_LABELS } from '../constants/statuts';
 
-const MOIS_LABELS = ['Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'];
+const MOIS_LABELS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 const STATUT_CLASS = { paye: 'badge-paye', partiel: 'badge-partiel', non_paye: 'badge-non-paye', non_du: 'badge-non-du' };
-const MODE_LABELS = { especes: 'Especes', orange_money: 'Orange Money', mtn_momo: 'MTN MoMo', moov_money: 'Moov Money', wave: 'Wave' };
+const MODE_LABELS = { especes: 'Espèces', orange_money: 'Orange Money', mtn_momo: 'MTN MoMo', moov_money: 'Moov Money', wave: 'Wave' };
 // Les routes de paiement en ligne (Jeko) utilisent les codes operateur bruts (wave/orange/mtn/moov) ;
 // le reste de l'app (historique, declarations manuelles) utilise les codes _money existants.
 const CODE_JEKO_VERS_MODE = { wave: 'wave', orange: 'orange_money', mtn: 'mtn_momo', moov: 'moov_money' };
@@ -31,6 +33,7 @@ export default function MaFicheCotisation() {
   const [preuve, setPreuve] = useState(null);
   const [envoi, setEnvoi] = useState(false);
   const [paiementEnCours, setPaiementEnCours] = useState(false);
+  const [telechargementRecuId, setTelechargementRecuId] = useState(null);
   const annee = new Date().getFullYear();
 
   const charger = async () => {
@@ -62,15 +65,25 @@ export default function MaFicheCotisation() {
       try {
         const { data } = await api.get(`/cotisations/paiement-en-ligne/${reference}`);
         if (data.statut === 'success') {
-          showToast(`Paiement de ${formatFCFA(data.montant)} confirme.`, 'succes');
+          showToast(`Paiement de ${formatFCFA(data.montant)} confirmé. Téléchargement du reçu...`, 'succes');
         } else if (data.statut === 'error') {
-          showToast("Le paiement a echoue cote operateur. Vous pouvez reessayer.", 'erreur');
+          showToast("Le paiement a échoué côté opérateur. Vous pouvez réessayer.", 'erreur');
         } else {
-          showToast('Paiement en attente de confirmation aupres de l\'operateur. Cela peut prendre quelques minutes.', 'info');
+          showToast('Paiement en attente de confirmation auprès de l\'opérateur. Cela peut prendre quelques minutes.', 'info');
+        }
+        window.history.replaceState({}, '', window.location.pathname);
+        const [{ data: ficheData }, { data: configData }] = await Promise.all([
+          api.get('/cotisations/ma-fiche', { params: { annee } }),
+          api.get('/cotisations/config', { params: { annee } }),
+        ]);
+        setFiche(ficheData);
+        setConfig(configData);
+        if (data.statut === 'success' && data.paiement_id) {
+          const paiement = ficheData.paiements.find((p) => p.id === data.paiement_id);
+          if (paiement) await genererRecuPDF(user, paiement);
         }
       } catch {
         // la reference peut ne pas (encore) exister si l'appel precedent a echoue avant creation
-      } finally {
         window.history.replaceState({}, '', window.location.pathname);
         charger();
       }
@@ -86,7 +99,7 @@ export default function MaFicheCotisation() {
   const copierNumero = () => {
     if (!numeroReception) return;
     navigator.clipboard?.writeText(numeroReception);
-    showToast('Numero copie dans le presse-papiers.', 'succes');
+    showToast('Numéro copié dans le presse-papiers.', 'succes');
   };
 
   const toggleMois = (mois) => {
@@ -106,11 +119,11 @@ export default function MaFicheCotisation() {
 
   const payerMaintenant = async () => {
     if (form.mois.length === 0) {
-      showToast('Selectionnez au moins un mois a payer.', 'erreur');
+      showToast('Sélectionnez au moins un mois à payer.', 'erreur');
       return;
     }
     if (!payerPhone) {
-      showToast('Renseignez le numero Mobile Money a debiter.', 'erreur');
+      showToast('Renseignez le numéro Mobile Money à débiter.', 'erreur');
       return;
     }
     setPaiementEnCours(true);
@@ -130,7 +143,7 @@ export default function MaFicheCotisation() {
   const envoyerDeclaration = async (e) => {
     e.preventDefault();
     if (!preuve || form.mois.length === 0) {
-      showToast('Selectionnez au moins un mois et joignez une capture de la preuve de paiement.', 'erreur');
+      showToast('Sélectionnez au moins un mois et joignez une capture de la preuve de paiement.', 'erreur');
       return;
     }
     setEnvoi(true);
@@ -142,15 +155,26 @@ export default function MaFicheCotisation() {
       fd.append('mois_couverts', JSON.stringify(form.mois.map((m) => ({ annee, mois: m }))));
       fd.append('preuve', preuve);
       await api.post('/cotisations/declarations', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      showToast('Declaration envoyee. Le tresorier va la verifier.', 'succes');
+      showToast('Déclaration envoyée. Le trésorier va la vérifier.', 'succes');
       setShowDeclaration(false);
       setForm({ montant: '', date_paiement: '', mode_paiement: 'wave', mois: [] });
       setPreuve(null);
       charger();
     } catch (err) {
-      showToast(err.response?.data?.message || "Erreur lors de l'envoi de la declaration.", 'erreur');
+      showToast(err.response?.data?.message || "Erreur lors de l'envoi de la déclaration.", 'erreur');
     } finally {
       setEnvoi(false);
+    }
+  };
+
+  const telechargerRecu = async (p) => {
+    setTelechargementRecuId(p.id);
+    try {
+      await genererRecuPDF(user, p);
+    } catch {
+      showToast('Erreur lors de la génération du reçu.', 'erreur');
+    } finally {
+      setTelechargementRecuId(null);
     }
   };
 
@@ -170,11 +194,11 @@ export default function MaFicheCotisation() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow">
-          <p className="text-sm text-slate-500 dark:text-slate-400">Total du (annee)</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Total dû (année)</p>
           <p className="text-xl font-bold">{formatFCFA(totalDu)}</p>
         </div>
         <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow">
-          <p className="text-sm text-slate-500 dark:text-slate-400">Total paye</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Total payé</p>
           <p className="text-xl font-bold text-green-600">{formatFCFA(totalPaye)}</p>
         </div>
       </div>
@@ -182,23 +206,23 @@ export default function MaFicheCotisation() {
       {fiche.adhesion && (
         <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow flex items-center justify-between">
           <div>
-            <h2 className="font-semibold">Droit d'adhesion</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Paiement unique du a l'entree dans l'association - {formatFCFA(fiche.adhesion.montant_du)}</p>
+            <h2 className="font-semibold">Droit d'adhésion</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Paiement unique dû à l'entrée dans l'association - {formatFCFA(fiche.adhesion.montant_du)}</p>
           </div>
           <span className={`text-xs font-medium px-3 py-1 rounded-full ${STATUT_CLASS[fiche.adhesion.statut]}`}>
-            {fiche.adhesion.statut.replace('_', ' ')}
+            {STATUT_COTISATION_LABELS[fiche.adhesion.statut] || fiche.adhesion.statut}
           </span>
         </div>
       )}
 
       <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow">
-        <h2 className="font-semibold mb-3">Detail mois par mois</h2>
+        <h2 className="font-semibold mb-3">Détail mois par mois</h2>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {fiche.mois.map((m) => (
             <div key={m.mois} className="flex items-center justify-between rounded-lg border border-slate-100 dark:border-slate-700 px-3 py-2">
               <span className="text-sm">{MOIS_LABELS[m.mois - 1]}</span>
               <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUT_CLASS[m.statut]}`}>
-                {m.statut.replace('_', ' ')}
+                {STATUT_COTISATION_LABELS[m.statut] || m.statut}
               </span>
             </div>
           ))}
@@ -206,18 +230,32 @@ export default function MaFicheCotisation() {
       </div>
 
       <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow">
-        <h2 className="font-semibold mb-3">Historique des paiements / recus</h2>
+        <h2 className="font-semibold mb-3">Historique des paiements / reçus</h2>
         <div className="space-y-2">
-          {fiche.paiements.length === 0 && <p className="text-sm text-slate-400">Aucun paiement enregistre.</p>}
+          {fiche.paiements.length === 0 && <p className="text-sm text-slate-400">Aucun paiement enregistré.</p>}
           {fiche.paiements.map((p) => (
             <div key={p.id} className="flex items-center justify-between border-b border-slate-50 dark:border-slate-700/50 pb-2 text-sm">
               <div>
                 <p className="font-medium">{formatFCFA(p.montant)} - {MODE_LABELS[p.mode_paiement] || p.mode_paiement}</p>
                 <p className="text-slate-400 text-xs">{new Date(p.date_paiement).toLocaleDateString('fr-FR')} {p.recu_numero ? `- ${p.recu_numero}` : ''}</p>
               </div>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${p.statut_validation === 'valide' ? 'badge-paye' : 'badge-partiel'}`}>
-                {p.statut_validation}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs px-2 py-0.5 rounded-full ${p.statut_validation === 'valide' ? 'badge-paye' : 'badge-partiel'}`}>
+                  {STATUT_VALIDATION_LABELS[p.statut_validation] || p.statut_validation}
+                </span>
+                <button
+                  onClick={() => telechargerRecu(p)}
+                  disabled={telechargementRecuId === p.id}
+                  title="Télécharger le reçu (PDF)"
+                  className="text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 disabled:opacity-60"
+                >
+                  {telechargementRecuId === p.id ? (
+                    <i className="fa-solid fa-circle-notch fa-spin" />
+                  ) : (
+                    <i className="fa-solid fa-file-pdf" />
+                  )}
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -241,12 +279,12 @@ export default function MaFicheCotisation() {
                 onClick={() => setOnglet('manuelle')}
                 className={`flex-1 rounded-md py-1.5 ${onglet === 'manuelle' ? 'bg-white dark:bg-slate-800 shadow font-medium' : 'text-slate-500'}`}
               >
-                J'ai deja paye
+                J'ai déjà payé
               </button>
             </div>
 
             <div>
-              <label className="text-xs text-slate-500 block mb-1.5">Operateur</label>
+              <label className="text-xs text-slate-500 block mb-1.5">Opérateur</label>
               <div className="grid grid-cols-4 gap-2">
                 {MOYENS_PAIEMENT.map((m) => (
                   <button
@@ -267,7 +305,7 @@ export default function MaFicheCotisation() {
             </div>
 
             <div>
-              <label className="text-xs text-slate-500 block mb-1">Mois concernes</label>
+              <label className="text-xs text-slate-500 block mb-1">Mois concernés</label>
               <div className="flex flex-wrap gap-1">
                 {fiche.adhesion && fiche.adhesion.statut !== 'paye' && (
                   <button
@@ -277,7 +315,7 @@ export default function MaFicheCotisation() {
                       form.mois.includes(0) ? 'bg-amber-500 text-white border-amber-500' : 'border-amber-400 text-amber-700 dark:text-amber-400'
                     }`}
                   >
-                    Droit d'adhesion
+                    Droit d'adhésion
                   </button>
                 )}
                 {MOIS_LABELS.map((label, idx) => (
@@ -307,12 +345,12 @@ export default function MaFicheCotisation() {
                     <span>{formatFCFA(FRAIS_PLATEFORME_FCFA)}</span>
                   </div>
                   <div className="flex items-center justify-between font-semibold pt-1 border-t border-slate-200 dark:border-slate-600">
-                    <span>Total debite</span>
+                    <span>Total débité</span>
                     <span>{formatFCFA(totalSelection > 0 ? totalSelection + FRAIS_PLATEFORME_FCFA : 0)}</span>
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-500">Numero {operateurChoisi?.label} a debiter</label>
+                  <label className="text-xs text-slate-500">Numéro {operateurChoisi?.label} à débiter</label>
                   <input
                     required
                     type="tel"
@@ -322,7 +360,7 @@ export default function MaFicheCotisation() {
                     className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm"
                   />
                   <p className="text-[11px] text-slate-400 mt-1">
-                    Sur MTN et Moov, l'operateur vous envoie une demande de code a valider sur votre telephone. Sur Wave et Orange, vous serez redirige vers leur application.
+                    Sur MTN et Moov, l'opérateur vous envoie une demande de code à valider sur votre téléphone. Sur Wave et Orange, vous serez redirigé vers leur application.
                   </p>
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
@@ -335,7 +373,7 @@ export default function MaFicheCotisation() {
             ) : (
               <form onSubmit={envoyerDeclaration} className="space-y-3">
                 <div className="rounded-lg bg-slate-50 dark:bg-slate-700/50 p-3 text-sm">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Envoyez le montant via {operateurChoisi?.label} au numero :</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Envoyez le montant via {operateurChoisi?.label} au numéro :</p>
                   {numeroReception ? (
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-mono font-semibold text-blue-800 dark:text-blue-300">{numeroReception}</span>
@@ -344,11 +382,11 @@ export default function MaFicheCotisation() {
                       </button>
                     </div>
                   ) : (
-                    <p className="text-slate-400 text-xs">Numero non encore configure par le tresorier. Rapprochez-vous du bureau.</p>
+                    <p className="text-slate-400 text-xs">Numéro non encore configuré par le trésorier. Rapprochez-vous du bureau.</p>
                   )}
                 </div>
                 <div>
-                  <label className="text-xs text-slate-500">Montant envoye (FCFA)</label>
+                  <label className="text-xs text-slate-500">Montant envoyé (FCFA)</label>
                   <input required type="number" value={form.montant} onChange={(e) => setForm((f) => ({ ...f, montant: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm" />
                 </div>
                 <div>
@@ -356,7 +394,7 @@ export default function MaFicheCotisation() {
                   <input required type="date" value={form.date_paiement} onChange={(e) => setForm((f) => ({ ...f, date_paiement: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm" />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-500">Capture d'ecran de la preuve</label>
+                  <label className="text-xs text-slate-500">Capture d'écran de la preuve</label>
                   <input required type="file" accept="image/*,.pdf" onChange={(e) => setPreuve(e.target.files[0])} className="w-full text-sm" />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">

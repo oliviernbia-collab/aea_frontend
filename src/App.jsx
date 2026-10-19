@@ -20,6 +20,7 @@ import Administration from './pages/Administration';
 import MonProfil from './pages/MonProfil';
 import JournalActivite from './pages/JournalActivite';
 import GestionPermissions from './pages/GestionPermissions';
+import Cartes from './pages/Cartes';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -84,6 +85,14 @@ export default function App() {
           element={
             <ProtectedRoute permission="permissions.gerer">
               <GestionPermissions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cartes"
+          element={
+            <ProtectedRoute permission="cartes.generer">
+              <Cartes />
             </ProtectedRoute>
           }
         />

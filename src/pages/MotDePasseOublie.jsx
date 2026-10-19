@@ -18,18 +18,18 @@ export default function MotDePasseOublie() {
       <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-800 p-8 shadow-xl">
         <div className="flex flex-col items-center gap-2 mb-6">
           <Logo size={56} showText={false} />
-          <h1 className="text-lg font-bold text-slate-900 dark:text-white">Mot de passe oublie</h1>
+          <h1 className="text-lg font-bold text-slate-900 dark:text-white">Mot de passe oublié</h1>
         </div>
 
         {envoye ? (
           <p className="text-sm text-green-700 dark:text-green-300 text-center">
-            Si ce compte existe, des instructions de reinitialisation ont ete envoyees par SMS ou e-mail.
+            Si ce compte existe, des instructions de réinitialisation ont été envoyées par SMS ou e-mail.
           </p>
         ) : (
           <form onSubmit={submit} className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                Telephone ou e-mail
+                Téléphone ou e-mail
               </label>
               <input
                 className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent py-2 px-3 text-sm focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
@@ -46,7 +46,7 @@ export default function MotDePasseOublie() {
 
         <p className="mt-4 text-center text-xs">
           <Link to="/connexion" className="text-blue-700 dark:text-blue-300 hover:underline">
-            Retour a la connexion
+            Retour à la connexion
           </Link>
         </p>
       </div>

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import PasswordInput from '../components/PasswordInput';
 import BadgeMembre from '../components/BadgeMembre';
+import { ROLE_LABELS } from '../constants/roles';
 
 export default function MonProfil() {
   const { user, refresh } = useAuth();
@@ -28,18 +29,18 @@ export default function MonProfil() {
       Object.entries(form).forEach(([k, v]) => fd.append(k, v));
       if (photo) fd.append('photo', photo);
       await api.put(`/membres/${user.id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      setMsg('Fiche mise a jour.');
-      showToast('Profil mis a jour.', 'succes');
+      setMsg('Fiche mise à jour.');
+      showToast('Profil mis à jour.', 'succes');
       refresh();
     } catch (err) {
-      showToast(err.response?.data?.message || 'Erreur lors de la mise a jour.', 'erreur');
+      showToast(err.response?.data?.message || 'Erreur lors de la mise à jour.', 'erreur');
     }
   };
 
   const changerMotDePasse = async (e) => {
     e.preventDefault();
     if (pwdForm.nouveauMotDePasse.length < 8) {
-      showToast('Le nouveau mot de passe doit contenir au moins 8 caracteres.', 'erreur');
+      showToast('Le nouveau mot de passe doit contenir au moins 8 caractères.', 'erreur');
       return;
     }
     if (pwdForm.nouveauMotDePasse !== pwdForm.confirmation) {
@@ -52,7 +53,7 @@ export default function MonProfil() {
         motDePasseActuel: pwdForm.motDePasseActuel,
         nouveauMotDePasse: pwdForm.nouveauMotDePasse,
       });
-      showToast('Mot de passe modifie avec succes.', 'succes');
+      showToast('Mot de passe modifié avec succès.', 'succes');
       setPwdForm({ motDePasseActuel: '', nouveauMotDePasse: '', confirmation: '' });
     } catch (err) {
       showToast(err.response?.data?.message || 'Erreur lors du changement de mot de passe.', 'erreur');
@@ -78,7 +79,7 @@ export default function MonProfil() {
     setDeuxFALoading(true);
     try {
       await api.post('/auth/2fa/activer', { code: codeDeuxFA });
-      showToast('Double authentification activee.', 'succes');
+      showToast('Double authentification activée.', 'succes');
       setDeuxFAActive(true);
       setSetupDeuxFA(null);
       setCodeDeuxFA('');
@@ -95,7 +96,7 @@ export default function MonProfil() {
     setDeuxFALoading(true);
     try {
       await api.post('/auth/2fa/desactiver', { code: codeDesactivation });
-      showToast('Double authentification desactivee.', 'succes');
+      showToast('Double authentification désactivée.', 'succes');
       setDeuxFAActive(false);
       setCodeDesactivation('');
       refresh();
@@ -118,7 +119,7 @@ export default function MonProfil() {
         )}
         <div>
           <p className="font-semibold">{user.prenom} {user.nom}</p>
-          <p className="text-sm text-slate-400">{user.numero_membre} - {user.role.replace('_', ' ')}</p>
+          <p className="text-sm text-slate-400">{user.numero_membre} - {ROLE_LABELS[user.role] || user.role.replace('_', ' ')}</p>
         </div>
       </div>
 
@@ -130,12 +131,12 @@ export default function MonProfil() {
           <form onSubmit={submit} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <input placeholder="Nom" value={form.nom} onChange={(e) => setForm((f) => ({ ...f, nom: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
-              <input placeholder="Prenom" value={form.prenom} onChange={(e) => setForm((f) => ({ ...f, prenom: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
+              <input placeholder="Prénom" value={form.prenom} onChange={(e) => setForm((f) => ({ ...f, prenom: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
             </div>
             <input placeholder="E-mail" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
-            <input placeholder="Telephone" value={form.telephone} onChange={(e) => setForm((f) => ({ ...f, telephone: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
+            <input placeholder="Téléphone" value={form.telephone} onChange={(e) => setForm((f) => ({ ...f, telephone: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
             <div className="grid grid-cols-3 gap-3">
-              <input placeholder="Filiere" value={form.filiere} onChange={(e) => setForm((f) => ({ ...f, filiere: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
+              <input placeholder="Filière" value={form.filiere} onChange={(e) => setForm((f) => ({ ...f, filiere: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
               <input placeholder="Niveau" value={form.niveau} onChange={(e) => setForm((f) => ({ ...f, niveau: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
               <input placeholder="Promotion" value={form.promotion} onChange={(e) => setForm((f) => ({ ...f, promotion: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
             </div>
@@ -199,17 +200,17 @@ export default function MonProfil() {
           Double authentification (2FA)
         </h2>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-          Recommandee pour les membres du bureau : un code a 6 chiffres genere par une application
-          (Google Authenticator, Microsoft Authenticator...) sera demande a chaque connexion.
+          Recommandée pour les membres du bureau : un code à 6 chiffres généré par une application
+          (Google Authenticator, Microsoft Authenticator...) sera demandé à chaque connexion.
         </p>
 
         {deuxFAActive ? (
           <div className="space-y-3">
             <p className="inline-flex items-center gap-2 text-sm font-medium text-green-700 dark:text-green-300">
-              <i className="fa-solid fa-circle-check" /> Activee
+              <i className="fa-solid fa-circle-check" /> Activée
             </p>
             <form onSubmit={desactiverDeuxFA} className="space-y-2">
-              <label className="text-xs text-slate-500">Entrez un code actuel pour desactiver</label>
+              <label className="text-xs text-slate-500">Entrez un code actuel pour désactiver</label>
               <input
                 inputMode="numeric"
                 maxLength={6}
@@ -223,7 +224,7 @@ export default function MonProfil() {
                 disabled={deuxFALoading || codeDesactivation.length !== 6}
                 className="block rounded-lg border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 px-3 py-1.5 text-sm hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-60"
               >
-                Desactiver
+                Désactiver
               </button>
             </form>
           </div>
@@ -231,9 +232,9 @@ export default function MonProfil() {
           <form onSubmit={activerDeuxFA} className="space-y-3">
             <div className="flex flex-col items-center gap-2">
               <img src={setupDeuxFA.qrCode} alt="QR code 2FA" className="w-40 h-40 rounded-lg border border-slate-200 dark:border-slate-700" />
-              <p className="text-xs text-slate-400 break-all text-center">Ou saisissez la cle : {setupDeuxFA.secret}</p>
+              <p className="text-xs text-slate-400 break-all text-center">Ou saisissez la clé : {setupDeuxFA.secret}</p>
             </div>
-            <label className="text-xs text-slate-500 block">Code affiche par l'application</label>
+            <label className="text-xs text-slate-500 block">Code affiché par l'application</label>
             <input
               autoFocus
               inputMode="numeric"

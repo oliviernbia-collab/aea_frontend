@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import api from '../services/api';
 import useLiveRefresh from '../hooks/useLiveRefresh';
+import { ROLE_LABELS } from '../constants/roles';
 
 const TABLES = [
   { value: '', label: 'Toutes les tables' },
@@ -11,7 +12,7 @@ const TABLES = [
 
 const ACTIONS = [
   { value: '', label: 'Toutes les actions' },
-  { value: 'creation', label: 'Creation' },
+  { value: 'creation', label: 'Création' },
   { value: 'modification', label: 'Modification' },
   { value: 'validation', label: 'Validation' },
   { value: 'annulation', label: 'Annulation' },
@@ -24,7 +25,8 @@ const ACTION_BADGE = {
   annulation: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
 };
 
-const TABLE_LABELS = { users: 'Membre', caisse_operations: 'Operation de caisse', cotisations: 'Cotisation', role_permissions: 'Permission' };
+const TABLE_LABELS = { users: 'Membre', caisse_operations: 'Opération de caisse', cotisations: 'Cotisation', role_permissions: 'Permission' };
+const ACTION_LABELS = Object.fromEntries(ACTIONS.filter((a) => a.value).map((a) => [a.value, a.label]));
 
 function resume(valeur) {
   if (!valeur) return null;
@@ -42,6 +44,8 @@ export default function JournalActivite() {
   const [entries, setEntries] = useState([]);
   const [table, setTable] = useState('');
   const [action, setAction] = useState('');
+  const [dateDebut, setDateDebut] = useState('');
+  const [dateFin, setDateFin] = useState('');
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -51,7 +55,14 @@ export default function JournalActivite() {
     setLoading(true);
     try {
       const { data } = await api.get('/journal', {
-        params: { table: table || undefined, action: action || undefined, limit: LIMIT, offset: nouvelOffset },
+        params: {
+          table: table || undefined,
+          action: action || undefined,
+          date_debut: dateDebut || undefined,
+          date_fin: dateFin || undefined,
+          limit: LIMIT,
+          offset: nouvelOffset,
+        },
       });
       if (nouvelOffset === 0) setEntries(data);
       else setEntries((prev) => [...prev, ...data]);
@@ -60,7 +71,7 @@ export default function JournalActivite() {
     } finally {
       setLoading(false);
     }
-  }, [table, action]);
+  }, [table, action, dateDebut, dateFin]);
 
   useEffect(() => {
     charger(0);
@@ -70,15 +81,39 @@ export default function JournalActivite() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Journal d'activite</h1>
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Journal d'activité</h1>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <select value={table} onChange={(e) => setTable(e.target.value)} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
           {TABLES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
         <select value={action} onChange={(e) => setAction(e.target.value)} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
           {ACTIONS.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
         </select>
+        <label className="text-xs text-slate-500 dark:text-slate-400">Du</label>
+        <input
+          type="date"
+          value={dateDebut}
+          onChange={(e) => setDateDebut(e.target.value)}
+          max={dateFin || undefined}
+          className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-2 py-1.5 text-sm"
+        />
+        <label className="text-xs text-slate-500 dark:text-slate-400">Au</label>
+        <input
+          type="date"
+          value={dateFin}
+          onChange={(e) => setDateFin(e.target.value)}
+          min={dateDebut || undefined}
+          className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-2 py-1.5 text-sm"
+        />
+        {(dateDebut || dateFin) && (
+          <button
+            onClick={() => { setDateDebut(''); setDateFin(''); }}
+            className="text-xs text-blue-700 dark:text-blue-300 hover:underline"
+          >
+            Réinitialiser
+          </button>
+        )}
       </div>
 
       <div className="rounded-xl bg-white dark:bg-slate-800 p-3 shadow overflow-x-auto">
@@ -89,20 +124,24 @@ export default function JournalActivite() {
               <th className="py-2 pr-2">Auteur</th>
               <th className="py-2 pr-2">Action</th>
               <th className="py-2 pr-2">Concerne</th>
-              <th className="py-2 pr-2">Detail</th>
+              <th className="py-2 pr-2">Détail</th>
             </tr>
           </thead>
           <tbody>
             {entries.length === 0 && !loading && (
-              <tr><td colSpan={5} className="py-4 text-center text-sm text-slate-400">Aucune activite trouvee.</td></tr>
+              <tr>
+                <td colSpan={5} className="py-4 text-center text-sm text-slate-400">
+                  {dateDebut || dateFin ? 'Aucune activité sur cette période.' : 'Aucune activité trouvée.'}
+                </td>
+              </tr>
             )}
             {entries.map((e) => (
               <tr key={e.id} className="border-b border-slate-50 dark:border-slate-700/50 align-top">
                 <td className="py-2 pr-2 whitespace-nowrap text-slate-500 dark:text-slate-400">{new Date(e.created_at).toLocaleString('fr-FR')}</td>
-                <td className="py-2 pr-2 whitespace-nowrap">{e.auteur_prenom} {e.auteur_nom}<span className="block text-xs text-slate-400">{e.auteur_role}</span></td>
+                <td className="py-2 pr-2 whitespace-nowrap">{e.auteur_prenom} {e.auteur_nom}<span className="block text-xs text-slate-400">{ROLE_LABELS[e.auteur_role] || e.auteur_role}</span></td>
                 <td className="py-2 pr-2">
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${ACTION_BADGE[e.action] || 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>
-                    {e.action}
+                    {ACTION_LABELS[e.action] || e.action}
                   </span>
                 </td>
                 <td className="py-2 pr-2 whitespace-nowrap">{TABLE_LABELS[e.table_name] || e.table_name} #{e.record_id}</td>

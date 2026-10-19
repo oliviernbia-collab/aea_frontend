@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import useLiveRefresh from '../hooks/useLiveRefresh';
 
-const MOIS_LABELS = ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aout', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MOIS_LABELS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
 
 function formatFCFA(n) {
   return new Intl.NumberFormat('fr-FR').format(Math.round(Number(n) || 0)) + ' FCFA';
@@ -46,7 +46,7 @@ export default function SaisieFinanciere() {
       Object.entries(opForm).forEach(([k, v]) => fd.append(k, v));
       if (justificatif) fd.append('justificatif', justificatif);
       const { data } = await api.post('/caisse/operations', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      const message = data.statut === 'en_attente_validation' ? 'Depense enregistree, en attente de validation du President (montant > 25 000 FCFA).' : 'Operation enregistree.';
+      const message = data.statut === 'en_attente_validation' ? 'Dépense enregistrée, en attente de validation du Président (montant > 25 000 FCFA).' : 'Opération enregistrée.';
       setOpMsg(message);
       showToast(message, data.statut === 'en_attente_validation' ? 'info' : 'succes');
       setOpForm({ type: 'sortie', fonds: 'fonctionnement', categorie: '', libelle: '', montant: '', date_operation: new Date().toISOString().slice(0, 10) });
@@ -60,7 +60,7 @@ export default function SaisieFinanciere() {
   const validerDepense = async (id) => {
     try {
       await api.patch(`/caisse/operations/${id}/valider`);
-      showToast('Depense validee.', 'succes');
+      showToast('Dépense validée.', 'succes');
       charger();
     } catch (err) {
       showToast(err.response?.data?.message || 'Erreur lors de la validation.', 'erreur');
@@ -75,8 +75,8 @@ export default function SaisieFinanciere() {
     e.preventDefault();
     setPaieMsg('');
     if (paieForm.mois.length === 0) {
-      setPaieMsg('Selectionnez au moins un mois.');
-      showToast('Selectionnez au moins un mois.', 'erreur');
+      setPaieMsg('Sélectionnez au moins un mois.');
+      showToast('Sélectionnez au moins un mois.', 'erreur');
       return;
     }
     try {
@@ -87,8 +87,8 @@ export default function SaisieFinanciere() {
         mode_paiement: paieForm.mode_paiement,
         mois_couverts: paieForm.mois.map((m) => ({ annee: new Date().getFullYear(), mois: m })),
       });
-      setPaieMsg(`Paiement enregistre. Recu : ${data.recuNumero}`);
-      showToast(`Paiement enregistre. Recu ${data.recuNumero}.`, 'succes');
+      setPaieMsg(`Paiement enregistré. Reçu : ${data.recuNumero}`);
+      showToast(`Paiement enregistré. Reçu ${data.recuNumero}.`, 'succes');
       setPaieForm({ membre_id: '', montant: '', date_paiement: new Date().toISOString().slice(0, 10), mode_paiement: 'especes', mois: [] });
     } catch (err) {
       showToast(err.response?.data?.message || "Erreur lors de l'enregistrement du paiement.", 'erreur');
@@ -97,12 +97,12 @@ export default function SaisieFinanciere() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Saisie financiere</h1>
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Saisie financière</h1>
 
-      {user.role === 'president' && enAttente.length > 0 && (
+      {(user.role === 'president' || user.role === 'vice_president') && enAttente.length > 0 && (
         <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 p-5 shadow">
           <h2 className="font-semibold mb-3 text-amber-800 dark:text-amber-200">
-            <i className="fa-solid fa-triangle-exclamation mr-1" /> Depenses en attente de votre validation
+            <i className="fa-solid fa-triangle-exclamation mr-1" /> Dépenses en attente de votre validation
           </h2>
           <div className="space-y-2">
             {enAttente.map((op) => (
@@ -122,32 +122,32 @@ export default function SaisieFinanciere() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow">
-          <h2 className="font-semibold mb-3">Nouvelle operation de caisse</h2>
+          <h2 className="font-semibold mb-3">Nouvelle opération de caisse</h2>
           {opMsg && <p className="mb-3 text-sm text-green-700 dark:text-green-300">{opMsg}</p>}
           <form onSubmit={soumettreOperation} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <select value={opForm.type} onChange={(e) => setOpForm((f) => ({ ...f, type: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
-                <option value="entree">Entree</option>
-                <option value="sortie">Sortie (depense)</option>
+                <option value="entree">Entrée</option>
+                <option value="sortie">Sortie (dépense)</option>
               </select>
               <select value={opForm.fonds} onChange={(e) => setOpForm((f) => ({ ...f, fonds: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
                 <option value="fonctionnement">Fonctionnement</option>
                 <option value="entraide">Entraide</option>
-                <option value="evenements">Evenements</option>
+                <option value="evenements">Événements</option>
               </select>
             </div>
-            <input required placeholder="Categorie" value={opForm.categorie} onChange={(e) => setOpForm((f) => ({ ...f, categorie: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
-            <input required placeholder="Libelle" value={opForm.libelle} onChange={(e) => setOpForm((f) => ({ ...f, libelle: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
+            <input required placeholder="Catégorie" value={opForm.categorie} onChange={(e) => setOpForm((f) => ({ ...f, categorie: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
+            <input required placeholder="Libellé" value={opForm.libelle} onChange={(e) => setOpForm((f) => ({ ...f, libelle: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
             <div className="grid grid-cols-2 gap-3">
               <input required type="number" placeholder="Montant (FCFA)" value={opForm.montant} onChange={(e) => setOpForm((f) => ({ ...f, montant: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
               <input required type="date" value={opForm.date_operation} onChange={(e) => setOpForm((f) => ({ ...f, date_operation: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
             </div>
             <div>
-              <label className="text-xs text-slate-500">Justificatif (photo de recu ou PDF)</label>
+              <label className="text-xs text-slate-500">Justificatif (photo de reçu ou PDF)</label>
               <input type="file" accept="image/*,.pdf" onChange={(e) => setJustificatif(e.target.files[0])} className="w-full text-sm" />
             </div>
             {opForm.type === 'sortie' && Number(opForm.montant) > 25000 && (
-              <p className="text-xs text-amber-600"><i className="fa-solid fa-circle-info mr-1" />Cette depense exigera la validation du President.</p>
+              <p className="text-xs text-amber-600"><i className="fa-solid fa-circle-info mr-1" />Cette dépense exigera la validation du Président.</p>
             )}
             <button type="submit" className="w-full rounded-lg bg-blue-800 text-white py-2 text-sm font-semibold">Enregistrer</button>
           </form>
@@ -158,7 +158,7 @@ export default function SaisieFinanciere() {
           {paieMsg && <p className="mb-3 text-sm text-green-700 dark:text-green-300">{paieMsg}</p>}
           <form onSubmit={soumettrePaiement} className="space-y-3">
             <select required value={paieForm.membre_id} onChange={(e) => setPaieForm((f) => ({ ...f, membre_id: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
-              <option value="">Selectionner un membre</option>
+              <option value="">Sélectionner un membre</option>
               {membres.map((m) => <option key={m.id} value={m.id}>{m.prenom} {m.nom} ({m.numero_membre})</option>)}
             </select>
             <div className="grid grid-cols-2 gap-3">
@@ -166,17 +166,17 @@ export default function SaisieFinanciere() {
               <input required type="date" value={paieForm.date_paiement} onChange={(e) => setPaieForm((f) => ({ ...f, date_paiement: e.target.value }))} className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
             </div>
             <select value={paieForm.mode_paiement} onChange={(e) => setPaieForm((f) => ({ ...f, mode_paiement: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
-              <option value="especes">Especes</option>
+              <option value="especes">Espèces</option>
               <option value="orange_money">Orange Money</option>
               <option value="mtn_momo">MTN MoMo</option>
               <option value="moov_money">Moov Money</option>
               <option value="wave">Wave</option>
             </select>
             <div>
-              <label className="text-xs text-slate-500 block mb-1">Mois concernes (ou droit d'adhesion)</label>
+              <label className="text-xs text-slate-500 block mb-1">Mois concernés (ou droit d'adhésion)</label>
               <div className="flex flex-wrap gap-1">
                 <button type="button" onClick={() => toggleMois(0)} className={`text-xs px-2 py-1 rounded-full border ${paieForm.mois.includes(0) ? 'bg-amber-500 text-white border-amber-500' : 'border-amber-400 text-amber-700 dark:text-amber-400'}`}>
-                  Droit d'adhesion
+                  Droit d'adhésion
                 </button>
                 {MOIS_LABELS.map((label, idx) => (
                   <button type="button" key={label} onClick={() => toggleMois(idx + 1)} className={`text-xs px-2 py-1 rounded-full border ${paieForm.mois.includes(idx + 1) ? 'bg-blue-800 text-white border-blue-800' : 'border-slate-300 dark:border-slate-600'}`}>

@@ -4,14 +4,7 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import useLiveRefresh from '../hooks/useLiveRefresh';
-
-const CATEGORIES = [
-  { value: 'annonce_officielle', label: 'Annonce officielle' },
-  { value: 'vie_academique', label: 'Vie academique' },
-  { value: 'culture', label: 'Culture' },
-  { value: 'social', label: 'Social' },
-  { value: 'opportunites', label: 'Opportunites' },
-];
+import { CATEGORIES } from '../constants/actualites';
 
 export default function Actualites() {
   const { isBureau } = useAuth();
@@ -35,6 +28,19 @@ export default function Actualites() {
 
   useLiveRefresh('actualites:update', charger);
 
+  const supprimer = async (e, id) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!window.confirm('Supprimer définitivement cette actualité ?')) return;
+    try {
+      await api.delete(`/actualites/${id}`);
+      showToast('Actualité supprimée.', 'succes');
+      charger();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Erreur lors de la suppression.', 'erreur');
+    }
+  };
+
   const publier = async (e) => {
     e.preventDefault();
     setEnvoi(true);
@@ -43,7 +49,7 @@ export default function Actualites() {
       Object.entries(form).forEach(([k, v]) => fd.append(k, v));
       if (image) fd.append('image', image);
       await api.post('/actualites', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      showToast('Actualite publiee.', 'succes');
+      showToast('Actualité publiée.', 'succes');
       setShowForm(false);
       setForm({ titre: '', texte: '', categorie: 'annonce_officielle', visibilite: 'membres', epingle: false });
       setImage(null);
@@ -58,7 +64,7 @@ export default function Actualites() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Actualites</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Actualités</h1>
         {isBureau && (
           <button onClick={() => setShowForm(true)} className="rounded-lg bg-blue-800 text-white px-4 py-2 text-sm">
             <i className="fa-solid fa-plus mr-1" /> Publier
@@ -79,12 +85,21 @@ export default function Actualites() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {actus.map((a) => (
-          <Link key={a.id} to={`/actualites/${a.id}`} className="rounded-xl bg-white dark:bg-slate-800 shadow overflow-hidden hover:shadow-md">
+          <Link key={a.id} to={`/actualites/${a.id}`} className="relative rounded-xl bg-white dark:bg-slate-800 shadow overflow-hidden hover:shadow-md">
+            {isBureau && (
+              <button
+                onClick={(e) => supprimer(e, a.id)}
+                title="Supprimer"
+                className="absolute top-2 right-2 z-10 rounded-full bg-black/50 hover:bg-red-600 text-white w-7 h-7 flex items-center justify-center text-xs"
+              >
+                <i className="fa-solid fa-trash" />
+              </button>
+            )}
             {a.image && <img src={a.image} alt={a.titre} className="h-36 w-full object-cover" />}
             <div className="p-4">
               {a.epingle === 1 && (
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 mb-1">
-                  <i className="fa-solid fa-thumbtack" /> Epingle
+                  <i className="fa-solid fa-thumbtack" /> Épinglé
                 </span>
               )}
               <span className="block text-xs text-blue-700 dark:text-blue-300 font-medium mb-1">
@@ -96,25 +111,25 @@ export default function Actualites() {
             </div>
           </Link>
         ))}
-        {actus.length === 0 && <p className="text-sm text-slate-400">Aucune actualite.</p>}
+        {actus.length === 0 && <p className="text-sm text-slate-400">Aucune actualité.</p>}
       </div>
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8 overflow-y-auto">
           <form onSubmit={publier} className="w-full max-w-lg rounded-xl bg-white dark:bg-slate-800 p-5 shadow-xl space-y-3">
-            <h3 className="font-semibold">Nouvelle actualite</h3>
+            <h3 className="font-semibold">Nouvelle actualité</h3>
             <input required placeholder="Titre" value={form.titre} onChange={(e) => setForm((f) => ({ ...f, titre: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
             <textarea required placeholder="Texte" rows={4} value={form.texte} onChange={(e) => setForm((f) => ({ ...f, texte: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm" />
             <select value={form.categorie} onChange={(e) => setForm((f) => ({ ...f, categorie: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
               {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
             </select>
             <select value={form.visibilite} onChange={(e) => setForm((f) => ({ ...f, visibilite: e.target.value }))} className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm">
-              <option value="membres">Reservee aux membres</option>
+              <option value="membres">Réservée aux membres</option>
               <option value="publique">Publique (visible sur le site)</option>
             </select>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={form.epingle} onChange={(e) => setForm((f) => ({ ...f, epingle: e.target.checked }))} />
-              Epingler en haut du fil
+              Épingler en haut du fil
             </label>
             <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} className="w-full text-sm" />
             <div className="flex justify-end gap-2 pt-2">

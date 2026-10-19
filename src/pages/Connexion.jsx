@@ -53,7 +53,7 @@ export default function Connexion() {
           <Logo size={64} showText={false} />
           <h1 className="text-xl font-bold text-slate-900 dark:text-white">Espace Membre AEA</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
-            Association des Etudiants d'Assoumoukro
+            Association des Étudiants d'Assoumoukro
           </p>
         </div>
 
@@ -69,7 +69,7 @@ export default function Connexion() {
             <div className="text-center">
               <i className="fa-solid fa-shield-halved text-3xl text-blue-800 dark:text-blue-300 mb-2" />
               <p className="text-sm text-slate-600 dark:text-slate-300">
-                Entrez le code a 6 chiffres de votre application d'authentification.
+                Entrez le code à 6 chiffres de votre application d'authentification.
               </p>
             </div>
             <input
@@ -102,7 +102,7 @@ export default function Connexion() {
             <form onSubmit={submit} className="space-y-4">
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Telephone ou e-mail
+                  Téléphone ou e-mail
                 </label>
                 <div className="relative">
                   <i className="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -133,10 +133,10 @@ export default function Connexion() {
 
             <div className="mt-4 flex justify-between text-xs">
               <Link to="/mot-de-passe-oublie" className="text-blue-700 dark:text-blue-300 hover:underline">
-                Mot de passe oublie ?
+                Mot de passe oublié ?
               </Link>
               <Link to="/inscription" className="text-blue-700 dark:text-blue-300 hover:underline">
-                Creer un compte
+                Créer un compte
               </Link>
             </div>
           </>

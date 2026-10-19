@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import useLiveRefresh from '../hooks/useLiveRefresh';
+import { STATUT_COTISATION_LABELS } from '../constants/statuts';
 
 function formatFCFA(n) {
   return new Intl.NumberFormat('fr-FR').format(Math.round(Number(n) || 0)) + ' FCFA';
@@ -61,7 +62,7 @@ export default function AccueilMembre() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Bonjour {user?.prenom} !</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">Numero de membre : {user?.numero_membre}</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">Numéro de membre : {user?.numero_membre}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -80,7 +81,7 @@ export default function AccueilMembre() {
             statutMoisActuel?.statut === 'partiel' ? 'text-amber-600' :
             statutMoisActuel?.statut === 'non_du' || !statutMoisActuel ? 'text-slate-400' : 'text-red-600'
           }`}>
-            {!maFiche ? 'Chargement...' : statutMoisActuel ? statutMoisActuel.statut.replace('_', ' ') : 'Non configure'}
+            {!maFiche ? 'Chargement...' : statutMoisActuel ? (STATUT_COTISATION_LABELS[statutMoisActuel.statut] || statutMoisActuel.statut) : 'Non configuré'}
           </p>
         </Link>
 
@@ -94,11 +95,11 @@ export default function AccueilMembre() {
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-slate-900 dark:text-white">Dernieres actualites</h2>
+            <h2 className="font-semibold text-slate-900 dark:text-white">Dernières actualités</h2>
             <Link to="/actualites" className="text-xs text-blue-700 dark:text-blue-300 hover:underline">Voir tout</Link>
           </div>
           <div className="space-y-3">
-            {actus.length === 0 && <p className="text-sm text-slate-400">Aucune actualite.</p>}
+            {actus.length === 0 && <p className="text-sm text-slate-400">Aucune actualité.</p>}
             {actus.map((a) => (
               <Link key={a.id} to={`/actualites/${a.id}`} className="block border-b border-slate-100 dark:border-slate-700 pb-2 last:border-0">
                 <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{a.titre}</p>
@@ -109,7 +110,7 @@ export default function AccueilMembre() {
         </div>
 
         <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow">
-          <h2 className="font-semibold text-slate-900 dark:text-white mb-3">Notifications recentes</h2>
+          <h2 className="font-semibold text-slate-900 dark:text-white mb-3">Notifications récentes</h2>
           <div className="space-y-3">
             {notifications.length === 0 && <p className="text-sm text-slate-400">Aucune notification non lue.</p>}
             {notifications.map((n) => (

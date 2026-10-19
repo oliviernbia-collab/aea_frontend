@@ -6,21 +6,26 @@ import PasswordInput from '../components/PasswordInput';
 
 const CHAMPS = [
   { name: 'nom', label: 'Nom', type: 'text' },
-  { name: 'prenom', label: 'Prenom', type: 'text' },
+  { name: 'prenom', label: 'Prénom', type: 'text' },
   { name: 'email', label: 'E-mail', type: 'email' },
-  { name: 'telephone', label: 'Telephone', type: 'tel' },
-  { name: 'filiere', label: 'Filiere', type: 'text' },
+  { name: 'telephone', label: 'Téléphone', type: 'tel' },
+  { name: 'filiere', label: 'Filière', type: 'text' },
   { name: 'niveau', label: 'Niveau', type: 'text' },
   { name: 'promotion', label: 'Promotion', type: 'select' },
 ];
 
-const PROMOTIONS = [
-  { value: 'membre', label: 'Membre' },
-  { value: 'tresorier', label: 'Tresorier(ere)' },
-  { value: 'secretaire_general', label: 'Secretaire General(e)' },
-  { value: 'resp_communication', label: 'Resp. Communication' },
-  { value: 'president', label: 'President(e)' },
-];
+// Annees academiques recentes (ex. "2025 - 2026"), de la plus recente a la plus ancienne,
+// pour que le nouveau membre indique sa promotion d'entree dans l'association.
+function genererPromotions(nombreAnnees = 6) {
+  const maintenant = new Date();
+  const anneeCourante = maintenant.getMonth() >= 8 ? maintenant.getFullYear() : maintenant.getFullYear() - 1;
+  return Array.from({ length: nombreAnnees }, (_, i) => {
+    const debut = anneeCourante - i;
+    return { value: `${debut}-${debut + 1}`, label: `${debut} - ${debut + 1}` };
+  });
+}
+
+const PROMOTIONS = genererPromotions();
 
 export default function Inscription() {
   const navigate = useNavigate();
@@ -37,7 +42,7 @@ export default function Inscription() {
     setLoading(true);
     try {
       const { data } = await api.post('/auth/inscription', form);
-      setSucces(`Inscription enregistree ! Votre numero de membre : ${data.numeroMembre}. Elle sera validee par le Secretaire General avant votre premiere connexion.`);
+      setSucces(`Inscription enregistrée ! Votre numéro de membre : ${data.numeroMembre}. Elle sera validée par le Secrétaire Général avant votre première connexion.`);
       setTimeout(() => navigate('/connexion'), 4000);
     } catch (err) {
       setErreur(err.response?.data?.message || err.response?.data?.errors?.[0]?.msg || "Erreur lors de l'inscription.");
@@ -51,7 +56,7 @@ export default function Inscription() {
       <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-800 p-8 shadow-xl">
         <div className="flex flex-col items-center gap-2 mb-6">
           <Logo size={56} showText={false} />
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Adhesion a l'AEA</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Adhésion à l'AEA</h1>
         </div>
 
         {erreur && (
@@ -77,7 +82,7 @@ export default function Inscription() {
                     defaultValue=""
                     className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 py-2 px-3 text-sm focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
                   >
-                    <option value="" disabled>Selectionner...</option>
+                    <option value="" disabled>Sélectionner...</option>
                     {PROMOTIONS.map((p) => (
                       <option key={p.value} value={p.value}>{p.label}</option>
                     ))}
@@ -115,7 +120,7 @@ export default function Inscription() {
 
         <p className="mt-4 text-center text-xs">
           <Link to="/connexion" className="text-blue-700 dark:text-blue-300 hover:underline">
-            Deja membre ? Se connecter
+            Déjà membre ? Se connecter
           </Link>
         </p>
       </div>

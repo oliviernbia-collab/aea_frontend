@@ -90,7 +90,7 @@ export default function Messagerie() {
             Bureau
           </button>
           <button onClick={() => setOnglet('prive')} className={`flex-1 py-2 text-sm font-medium ${onglet === 'prive' ? 'text-blue-800 dark:text-blue-300 border-b-2 border-blue-800' : 'text-slate-400'}`}>
-            Prives
+            Privés
           </button>
         </div>
         {onglet === 'prive' && (
@@ -128,7 +128,7 @@ export default function Messagerie() {
             </div>
             {isBureau && (
               <form onSubmit={envoyerBroadcast} className="flex gap-2 p-3 border-t border-slate-100 dark:border-slate-700">
-                <input value={texte} onChange={(e) => setTexte(e.target.value)} placeholder="Message a tous les membres..." className="flex-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-2 text-sm" />
+                <input value={texte} onChange={(e) => setTexte(e.target.value)} placeholder="Message à tous les membres..." className="flex-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-2 text-sm" />
                 <button type="submit" className="rounded-lg bg-blue-800 text-white px-4"><i className="fa-solid fa-paper-plane" /></button>
               </form>
             )}
@@ -145,12 +145,12 @@ export default function Messagerie() {
               <div ref={finListe} />
             </div>
             <form onSubmit={envoyerPrive} className="flex gap-2 p-3 border-t border-slate-100 dark:border-slate-700">
-              <input value={texte} onChange={(e) => setTexte(e.target.value)} placeholder="Ecrire un message..." className="flex-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-2 text-sm" />
+              <input value={texte} onChange={(e) => setTexte(e.target.value)} placeholder="Écrire un message..." className="flex-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-2 text-sm" />
               <button type="submit" className="rounded-lg bg-blue-800 text-white px-4"><i className="fa-solid fa-paper-plane" /></button>
             </form>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">Selectionnez un contact.</div>
+          <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">Sélectionnez un contact.</div>
         )}
       </div>
     </div>

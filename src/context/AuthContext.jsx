@@ -4,7 +4,11 @@ import { connectSocket, disconnectSocket } from '../services/socket';
 
 const AuthContext = createContext(null);
 
-const BUREAU_ROLES = ['super_admin', 'president', 'tresorier', 'secretaire_general', 'resp_communication'];
+const BUREAU_ROLES = [
+  'super_admin', 'president', 'vice_president', 'secretaire_general', 'tresorier', 'resp_communication',
+  'secretaire_organisation', 'secretaire_academique', 'secretaire_culturel', 'commissaire_comptes',
+  'secretaire_ideologique', 'secretaire_social', 'secretaire_insertion',
+];
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {

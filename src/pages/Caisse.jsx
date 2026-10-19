@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 import useLiveRefresh from '../hooks/useLiveRefresh';
+import { FONDS_LABELS } from '../constants/statuts';
 
 function formatFCFA(n) {
   return new Intl.NumberFormat('fr-FR').format(Math.round(Number(n) || 0)) + ' FCFA';
@@ -16,26 +17,45 @@ export default function Caisse() {
   const [moisCourant, setMoisCourant] = useState(null);
   const [evolution, setEvolution] = useState([]);
   const [operations, setOperations] = useState([]);
+  const [dateDebut, setDateDebut] = useState('');
+  const [dateFin, setDateFin] = useState('');
   const [signalement, setSignalement] = useState({ show: false, operationId: null, message: '' });
 
+  const chargerOperations = async () => {
+    const params = {};
+    if (dateDebut) params.date_debut = dateDebut;
+    if (dateFin) params.date_fin = dateFin;
+    const { data } = await api.get('/caisse/operations', { params });
+    setOperations(data);
+  };
+
   const charger = async () => {
-    const [s, m, e, o] = await Promise.all([
+    const [s, m, e] = await Promise.all([
       api.get('/caisse/solde'),
       api.get('/caisse/mois-courant'),
       api.get('/caisse/evolution'),
-      api.get('/caisse/operations'),
     ]);
     setSolde(s.data);
     setMoisCourant(m.data);
     setEvolution(e.data);
-    setOperations(o.data);
   };
 
   useEffect(() => {
     charger();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useLiveRefresh('caisse:update', charger);
+  useEffect(() => {
+    chargerOperations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateDebut, dateFin]);
+
+  const rafraichirTout = () => {
+    charger();
+    chargerOperations();
+  };
+
+  useLiveRefresh('caisse:update', rafraichirTout);
 
   const envoyerSignalement = async () => {
     if (!signalement.message.trim()) return;
@@ -58,7 +78,7 @@ export default function Caisse() {
           <p className="text-2xl font-bold mt-1">{solde ? formatFCFA(solde.solde) : '...'}</p>
         </div>
         <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow">
-          <p className="text-sm text-slate-500 dark:text-slate-400">Entrees ce mois</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Entrées ce mois</p>
           <p className="text-xl font-bold mt-1 text-green-600">{moisCourant ? formatFCFA(moisCourant.entrees) : '...'}</p>
         </div>
         <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow">
@@ -69,11 +89,11 @@ export default function Caisse() {
 
       {solde?.parFonds?.length > 0 && (
         <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow">
-          <h2 className="font-semibold text-slate-900 dark:text-white mb-3">Repartition par fonds</h2>
+          <h2 className="font-semibold text-slate-900 dark:text-white mb-3">Répartition par fonds</h2>
           <div className="grid gap-3 sm:grid-cols-3">
             {solde.parFonds.map((f) => (
               <div key={f.fonds} className="rounded-lg bg-slate-50 dark:bg-slate-700 p-3">
-                <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">{f.fonds}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{FONDS_LABELS[f.fonds] || f.fonds}</p>
                 <p className="font-semibold">{formatFCFA(f.solde)}</p>
               </div>
             ))}
@@ -82,7 +102,7 @@ export default function Caisse() {
       )}
 
       <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow">
-        <h2 className="font-semibold text-slate-900 dark:text-white mb-3">Evolution du solde (12 mois)</h2>
+        <h2 className="font-semibold text-slate-900 dark:text-white mb-3">Évolution du solde (12 mois)</h2>
         <div style={{ width: '100%', height: 260 }}>
           <ResponsiveContainer>
             <LineChart data={evolution}>
@@ -97,14 +117,42 @@ export default function Caisse() {
       </div>
 
       <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow">
-        <h2 className="font-semibold text-slate-900 dark:text-white mb-3">Dernieres operations</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <h2 className="font-semibold text-slate-900 dark:text-white">Dernières opérations</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="text-xs text-slate-500 dark:text-slate-400">Du</label>
+            <input
+              type="date"
+              value={dateDebut}
+              onChange={(e) => setDateDebut(e.target.value)}
+              max={dateFin || undefined}
+              className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-2 py-1 text-sm"
+            />
+            <label className="text-xs text-slate-500 dark:text-slate-400">Au</label>
+            <input
+              type="date"
+              value={dateFin}
+              onChange={(e) => setDateFin(e.target.value)}
+              min={dateDebut || undefined}
+              className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-2 py-1 text-sm"
+            />
+            {(dateDebut || dateFin) && (
+              <button
+                onClick={() => { setDateDebut(''); setDateFin(''); }}
+                className="text-xs text-blue-700 dark:text-blue-300 hover:underline"
+              >
+                Réinitialiser
+              </button>
+            )}
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700">
                 <th className="py-2 pr-2">Date</th>
-                <th className="py-2 pr-2">Libelle</th>
-                <th className="py-2 pr-2">Categorie</th>
+                <th className="py-2 pr-2">Libellé</th>
+                <th className="py-2 pr-2">Catégorie</th>
                 <th className="py-2 pr-2">Montant</th>
                 <th className="py-2 pr-2">Saisi par</th>
                 <th className="py-2 pr-2">Justificatif</th>
@@ -118,7 +166,7 @@ export default function Caisse() {
                   <td className="py-2 pr-2">
                     <i className={`fa-solid ${CATEGORIE_ICON[op.type]} mr-1`} />
                     {op.libelle}
-                    {op.statut === 'annulee' && <span className="ml-2 text-xs text-slate-400">(annulee)</span>}
+                    {op.statut === 'annulee' && <span className="ml-2 text-xs text-slate-400">(annulée)</span>}
                     {op.statut === 'en_attente_validation' && (
                       <span className="ml-2 text-xs text-amber-600">(en attente de validation)</span>
                     )}
@@ -149,7 +197,11 @@ export default function Caisse() {
                 </tr>
               ))}
               {operations.length === 0 && (
-                <tr><td colSpan={7} className="py-6 text-center text-slate-400">Aucune operation enregistree.</td></tr>
+                <tr>
+                  <td colSpan={7} className="py-6 text-center text-slate-400">
+                    {dateDebut || dateFin ? 'Aucune opération sur cette période.' : 'Aucune opération enregistrée.'}
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -165,7 +217,7 @@ export default function Caisse() {
               rows={4}
               value={signalement.message}
               onChange={(e) => setSignalement((s) => ({ ...s, message: e.target.value }))}
-              placeholder="Decrivez l'anomalie constatee..."
+              placeholder="Décrivez l'anomalie constatée..."
             />
             <div className="mt-3 flex justify-end gap-2">
               <button onClick={() => setSignalement({ show: false, operationId: null, message: '' })} className="px-3 py-1.5 text-sm rounded-lg border border-slate-300 dark:border-slate-600">

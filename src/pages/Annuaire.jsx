@@ -47,7 +47,7 @@ export default function Annuaire() {
             </div>
           </div>
         ))}
-        {membres.length === 0 && <p className="text-sm text-slate-400">Aucun membre trouve.</p>}
+        {membres.length === 0 && <p className="text-sm text-slate-400">Aucun membre trouvé.</p>}
       </div>
     </div>
   );

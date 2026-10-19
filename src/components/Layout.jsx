@@ -9,13 +9,14 @@ const NAV_ITEMS = [
   { to: '/caisse', label: 'Caisse', icon: 'fa-wallet', permission: null },
   { to: '/cotisations', label: 'Cotisations', icon: 'fa-table-list', permission: null },
   { to: '/cotisations/ma-fiche', label: 'Ma cotisation', icon: 'fa-user-check', permission: null },
-  { to: '/actualites', label: 'Actualites', icon: 'fa-newspaper', permission: null },
+  { to: '/actualites', label: 'Actualités', icon: 'fa-newspaper', permission: null },
   { to: '/messagerie', label: 'Messagerie', icon: 'fa-comments', permission: null },
   { to: '/annuaire', label: 'Annuaire', icon: 'fa-address-book', permission: null },
-  { to: '/saisie-financiere', label: 'Saisie financiere', icon: 'fa-file-invoice-dollar', permission: 'saisie_financiere.acceder' },
+  { to: '/saisie-financiere', label: 'Saisie financière', icon: 'fa-file-invoice-dollar', permission: 'saisie_financiere.acceder' },
   { to: '/administration', label: 'Administration', icon: 'fa-gear', permission: 'administration.acceder' },
-  { to: '/journal-activite', label: "Journal d'activite", icon: 'fa-clock-rotate-left', permission: 'journal.consulter' },
+  { to: '/journal-activite', label: "Journal d'activité", icon: 'fa-clock-rotate-left', permission: 'journal.consulter' },
   { to: '/gestion-permissions', label: 'Gestion des permissions', icon: 'fa-user-shield', permission: 'permissions.gerer' },
+  { to: '/cartes', label: 'Cartes', icon: 'fa-id-card', permission: 'cartes.generer' },
 ];
 
 export default function Layout() {
@@ -76,13 +77,13 @@ export default function Layout() {
           className="m-2 flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-300 hover:bg-red-500/20 hover:text-red-200"
         >
           <i className="fa-solid fa-right-from-bracket w-4 text-center" />
-          Deconnexion
+          Déconnexion
         </button>
       </aside>
 
       {/* Topbar mobile + desktop */}
-      <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between bg-blue-900 px-3 py-3 text-white md:bg-white md:text-slate-900 md:border-b md:border-slate-200 md:dark:bg-slate-900 md:dark:text-slate-100 md:dark:border-slate-700">
+      <div className="flex flex-1 flex-col min-w-0">
+        <header className="sticky top-0 z-30 flex items-center justify-between bg-blue-900 px-3 py-3 text-white md:bg-white md:text-slate-900 md:border-b md:border-slate-200 md:dark:bg-slate-900 md:dark:text-slate-100 md:dark:border-slate-700">
           <button className="md:hidden p-2" onClick={() => setMenuOpen(true)} aria-label="Ouvrir le menu">
             <i className="fa-solid fa-bars text-lg" />
           </button>
@@ -96,7 +97,7 @@ export default function Layout() {
             <button
               onClick={() => setDark((d) => !d)}
               className="rounded-full p-2 hover:bg-white/10 md:hover:bg-slate-100 md:dark:hover:bg-slate-800"
-              aria-label="Basculer le theme"
+              aria-label="Basculer le thème"
             >
               <i className={`fa-solid ${dark ? 'fa-sun' : 'fa-moon'}`} />
             </button>
@@ -107,7 +108,7 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="flex-1 bg-slate-50 dark:bg-slate-900 p-3 md:p-6">
+        <main className="flex-1 min-w-0 bg-slate-50 dark:bg-slate-900 p-3 md:p-6">
           <Outlet />
         </main>
       </div>
@@ -156,7 +157,7 @@ export default function Layout() {
               className="m-2 flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-300 hover:bg-red-500/20 hover:text-red-200"
             >
               <i className="fa-solid fa-right-from-bracket w-4 text-center" />
-              Deconnexion
+              Déconnexion
             </button>
           </aside>
         </div>

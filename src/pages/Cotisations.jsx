@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import api from '../services/api';
 import useLiveRefresh from '../hooks/useLiveRefresh';
 
-const MOIS_LABELS = ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aout', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MOIS_LABELS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
 
 const STATUT_CLASS = {
   paye: 'badge-paye',
@@ -65,7 +65,7 @@ export default function Cotisations() {
           className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm"
         />
         <input
-          placeholder="Filtrer par filiere"
+          placeholder="Filtrer par filière"
           value={filtres.filiere}
           onChange={(e) => setFiltres((f) => ({ ...f, filiere: e.target.value }))}
           className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm"
@@ -76,10 +76,10 @@ export default function Cotisations() {
       </div>
 
       <div className="flex flex-wrap gap-3 text-xs">
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full badge-paye inline-block" /> Paye</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full badge-paye inline-block" /> Payé</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full badge-partiel inline-block" /> Partiel</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full badge-non-paye inline-block" /> Non paye</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full badge-non-du inline-block" /> Non du</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full badge-non-paye inline-block" /> Non payé</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full badge-non-du inline-block" /> Non dû</span>
       </div>
 
       <div className="rounded-xl bg-white dark:bg-slate-800 p-3 shadow overflow-x-auto">
@@ -90,7 +90,7 @@ export default function Cotisations() {
               {MOIS_LABELS.map((m) => (
                 <th key={m} className="py-2 px-1 text-center">{m}</th>
               ))}
-              <th className="py-2 pl-2">Total paye</th>
+              <th className="py-2 pl-2">Total payé</th>
               <th className="py-2 pl-2">Retard</th>
             </tr>
           </thead>
@@ -114,13 +114,13 @@ export default function Cotisations() {
                   {m.moisEnRetard > 0 ? (
                     <span className="text-red-600 font-medium">{m.moisEnRetard} mois</span>
                   ) : (
-                    <span className="text-green-600">a jour</span>
+                    <span className="text-green-600">à jour</span>
                   )}
                 </td>
               </tr>
             ))}
             {membres.length === 0 && (
-              <tr><td colSpan={15} className="py-6 text-center text-slate-400">Aucune donnee pour cette annee.</td></tr>
+              <tr><td colSpan={15} className="py-6 text-center text-slate-400">Aucune donnée pour cette année.</td></tr>
             )}
           </tbody>
         </table>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import Logo from '../components/Logo';
 import Footer from '../components/Footer';
+import BoutonRetourHaut from '../components/BoutonRetourHaut';
 import affiche from '../assets/AEA1.webp';
 import globe from '../assets/globe.webp';
 import globe1 from '../assets/globe1.webp';
@@ -10,10 +11,10 @@ import { useAuth } from '../context/AuthContext';
 
 const CATEGORIE_LABEL = {
   annonce_officielle: 'Annonce officielle',
-  vie_academique: 'Vie academique',
+  vie_academique: 'Vie académique',
   culture: 'Culture',
   social: 'Social',
-  opportunites: 'Opportunites',
+  opportunites: 'Opportunités',
 };
 
 export default function AccueilPublic() {
@@ -53,17 +54,17 @@ export default function AccueilPublic() {
                   Connexion
                 </Link>
                 <Link to="/inscription" className="rounded-lg bg-amber-500 px-4 py-1.5 text-sm font-semibold hover:bg-amber-600">
-                  Adherer
+                  Adhérer
                 </Link>
               </>
             )}
           </div>
         </div>
         <div className="mx-auto max-w-5xl px-4 pb-16 pt-8 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold">Association des Etudiants d'Assoumoukro</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold">Association des Étudiants d'Assoumoukro</h1>
           <p className="mt-3 text-blue-100 max-w-2xl mx-auto">
-            Entraide, culture et reussite academique. Suivez en temps reel la caisse de l'association, vos
-            cotisations et toutes les actualites de l'AEA.
+            Entraide, culture et réussite académique. Suivez en temps réel la caisse de l'association, vos
+            cotisations et toutes les actualités de l'AEA.
           </p>
         </div>
       </header>
@@ -72,7 +73,7 @@ export default function AccueilPublic() {
         <div className="grid gap-4 sm:grid-cols-3 mb-10">
           <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow text-center">
             <i className="fa-solid fa-wallet text-2xl text-blue-800 dark:text-blue-300" />
-            <p className="mt-2 font-semibold">Transparence financiere</p>
+            <p className="mt-2 font-semibold">Transparence financière</p>
             <p className="text-sm text-slate-500 dark:text-slate-400">Solde de la caisse visible par tous</p>
           </div>
           <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow text-center">
@@ -82,29 +83,29 @@ export default function AccueilPublic() {
           </div>
           <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow text-center">
             <i className="fa-solid fa-comments text-2xl text-blue-800 dark:text-blue-300" />
-            <p className="mt-2 font-semibold">Communication centralisee</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Messages et actualites en un seul endroit</p>
+            <p className="mt-2 font-semibold">Communication centralisée</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Messages et actualités en un seul endroit</p>
           </div>
         </div>
 
         <div className="flex justify-center mb-10">
           <img
             src={affiche}
-            alt="Affiche de presentation de l'AEA - Association des Etudiants d'Assoumoukro"
+            alt="Affiche de présentation de l'AEA - Association des Étudiants d'Assoumoukro"
             className="relative z-10 w-full max-w-sm rounded-2xl shadow-lg"
           />
         </div>
 
-        <h2 id="actualites" className="text-xl font-bold mb-4 text-slate-900 dark:text-white scroll-mt-4">Actualites publiques</h2>
+        <h2 id="actualites" className="text-xl font-bold mb-4 text-slate-900 dark:text-white scroll-mt-4">Actualités publiques</h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          {actus.length === 0 && <p className="text-sm text-slate-500">Aucune actualite publiee pour le moment.</p>}
+          {actus.length === 0 && <p className="text-sm text-slate-500">Aucune actualité publiée pour le moment.</p>}
           {actus.map((a) => (
             <article key={a.id} className="rounded-xl bg-white dark:bg-slate-800 shadow overflow-hidden">
               {a.image && <img src={a.image} alt={a.titre} className="h-40 w-full object-cover" />}
               <div className="p-4">
                 {a.epingle === 1 && (
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 mb-1">
-                    <i className="fa-solid fa-thumbtack" /> Epingle
+                    <i className="fa-solid fa-thumbtack" /> Épinglé
                   </span>
                 )}
                 <span className="block text-xs text-blue-700 dark:text-blue-300 font-medium mb-1">
@@ -119,6 +120,7 @@ export default function AccueilPublic() {
       </main>
 
       <Footer />
+      <BoutonRetourHaut />
     </div>
   );
 }

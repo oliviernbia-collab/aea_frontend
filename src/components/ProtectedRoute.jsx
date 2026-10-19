@@ -18,7 +18,7 @@ export default function ProtectedRoute({ children, roles, permission }) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-2 text-center px-4">
         <i className="fa-solid fa-lock text-4xl text-slate-400" />
-        <p className="text-slate-600 dark:text-slate-300">Vous n'avez pas les droits pour acceder a cette page.</p>
+        <p className="text-slate-600 dark:text-slate-300">Vous n'avez pas les droits pour accéder à cette page.</p>
       </div>
     );
   }
@@ -27,7 +27,7 @@ export default function ProtectedRoute({ children, roles, permission }) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-2 text-center px-4">
         <i className="fa-solid fa-lock text-4xl text-slate-400" />
-        <p className="text-slate-600 dark:text-slate-300">Vous n'avez pas les droits pour acceder a cette page.</p>
+        <p className="text-slate-600 dark:text-slate-300">Vous n'avez pas les droits pour accéder à cette page.</p>
       </div>
     );
   }
