@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api';
 import useLiveRefresh from '../hooks/useLiveRefresh';
+import { GROUPES_ROLES } from '../constants/roles';
 
 const MOIS_LABELS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
 
@@ -19,7 +20,7 @@ export default function Cotisations() {
   const [annee, setAnnee] = useState(new Date().getFullYear());
   const [membres, setMembres] = useState([]);
   const [taux, setTaux] = useState(null);
-  const [filtres, setFiltres] = useState({ promotion: '', filiere: '' });
+  const [filtres, setFiltres] = useState({ role: '', filiere: '' });
 
   const charger = async () => {
     const params = { annee, ...filtres };
@@ -58,12 +59,18 @@ export default function Cotisations() {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <input
-          placeholder="Filtrer par promotion"
-          value={filtres.promotion}
-          onChange={(e) => setFiltres((f) => ({ ...f, promotion: e.target.value }))}
-          className="rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-1.5 text-sm"
-        />
+        <select
+          value={filtres.role}
+          onChange={(e) => setFiltres((f) => ({ ...f, role: e.target.value }))}
+          className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-sm"
+        >
+          <option value="">Filtrer par rôle (tous)</option>
+          {GROUPES_ROLES.map((g) => (
+            <optgroup key={g.label} label={g.label}>
+              {g.roles.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+            </optgroup>
+          ))}
+        </select>
         <input
           placeholder="Filtrer par filière"
           value={filtres.filiere}
