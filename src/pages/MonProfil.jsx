@@ -5,6 +5,7 @@ import { useToast } from '../context/ToastContext';
 import PasswordInput from '../components/PasswordInput';
 import BadgeMembre from '../components/BadgeMembre';
 import { ROLE_LABELS } from '../constants/roles';
+import { fichierEnDataUri } from '../utils/fichier';
 
 export default function MonProfil() {
   const { user, refresh } = useAuth();
@@ -25,10 +26,9 @@ export default function MonProfil() {
   const submit = async (e) => {
     e.preventDefault();
     try {
-      const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => fd.append(k, v));
-      if (photo) fd.append('photo', photo);
-      await api.put(`/membres/${user.id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const payload = { ...form };
+      if (photo) payload.photo = await fichierEnDataUri(photo);
+      await api.put(`/membres/${user.id}`, payload);
       setMsg('Fiche mise à jour.');
       showToast('Profil mis à jour.', 'succes');
       refresh();

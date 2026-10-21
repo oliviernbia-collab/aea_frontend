@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import useLiveRefresh from '../hooks/useLiveRefresh';
 import { CATEGORIES } from '../constants/actualites';
+import { fichierEnDataUri } from '../utils/fichier';
 
 export default function Actualites() {
   const { isBureau } = useAuth();
@@ -45,10 +46,9 @@ export default function Actualites() {
     e.preventDefault();
     setEnvoi(true);
     try {
-      const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => fd.append(k, v));
-      if (image) fd.append('image', image);
-      await api.post('/actualites', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const payload = { ...form };
+      if (image) payload.image = await fichierEnDataUri(image);
+      await api.post('/actualites', payload);
       showToast('Actualité publiée.', 'succes');
       setShowForm(false);
       setForm({ titre: '', texte: '', categorie: 'annonce_officielle', visibilite: 'membres', epingle: false });

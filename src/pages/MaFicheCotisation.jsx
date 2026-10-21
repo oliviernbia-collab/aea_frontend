@@ -6,6 +6,7 @@ import useLiveRefresh from '../hooks/useLiveRefresh';
 import { MOYENS_PAIEMENT } from '../constants/moyensPaiement';
 import { genererRecuPDF } from '../utils/recu';
 import { STATUT_COTISATION_LABELS, STATUT_VALIDATION_LABELS } from '../constants/statuts';
+import { fichierEnDataUri } from '../utils/fichier';
 
 const MOIS_LABELS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 const STATUT_CLASS = { paye: 'badge-paye', partiel: 'badge-partiel', non_paye: 'badge-non-paye', non_du: 'badge-non-du' };
@@ -148,13 +149,14 @@ export default function MaFicheCotisation() {
     }
     setEnvoi(true);
     try {
-      const fd = new FormData();
-      fd.append('montant', form.montant);
-      fd.append('date_paiement', form.date_paiement);
-      fd.append('mode_paiement', CODE_JEKO_VERS_MODE[form.mode_paiement] || form.mode_paiement);
-      fd.append('mois_couverts', JSON.stringify(form.mois.map((m) => ({ annee, mois: m }))));
-      fd.append('preuve', preuve);
-      await api.post('/cotisations/declarations', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const payload = {
+        montant: form.montant,
+        date_paiement: form.date_paiement,
+        mode_paiement: CODE_JEKO_VERS_MODE[form.mode_paiement] || form.mode_paiement,
+        mois_couverts: form.mois.map((m) => ({ annee, mois: m })),
+        preuve: await fichierEnDataUri(preuve),
+      };
+      await api.post('/cotisations/declarations', payload);
       showToast('Déclaration envoyée. Le trésorier va la vérifier.', 'succes');
       setShowDeclaration(false);
       setForm({ montant: '', date_paiement: '', mode_paiement: 'wave', mois: [] });

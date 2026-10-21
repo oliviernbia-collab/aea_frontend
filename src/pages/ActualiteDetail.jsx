@@ -4,6 +4,7 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { CATEGORIES } from '../constants/actualites';
+import { fichierEnDataUri } from '../utils/fichier';
 
 export default function ActualiteDetail() {
   const { id } = useParams();
@@ -37,10 +38,9 @@ export default function ActualiteDetail() {
     e.preventDefault();
     setEnvoi(true);
     try {
-      const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => fd.append(k, v));
-      if (image) fd.append('image', image);
-      await api.patch(`/actualites/${id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const payload = { ...form };
+      if (image) payload.image = await fichierEnDataUri(image);
+      await api.patch(`/actualites/${id}`, payload);
       showToast('Actualité mise à jour.', 'succes');
       setEditing(false);
       charger();

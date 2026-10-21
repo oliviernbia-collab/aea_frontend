@@ -3,6 +3,7 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import useLiveRefresh from '../hooks/useLiveRefresh';
+import { fichierEnDataUri } from '../utils/fichier';
 
 const MOIS_LABELS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
 
@@ -42,10 +43,9 @@ export default function SaisieFinanciere() {
     e.preventDefault();
     setOpMsg('');
     try {
-      const fd = new FormData();
-      Object.entries(opForm).forEach(([k, v]) => fd.append(k, v));
-      if (justificatif) fd.append('justificatif', justificatif);
-      const { data } = await api.post('/caisse/operations', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const payload = { ...opForm };
+      if (justificatif) payload.justificatif = await fichierEnDataUri(justificatif);
+      const { data } = await api.post('/caisse/operations', payload);
       const message = data.statut === 'en_attente_validation' ? 'Dépense enregistrée, en attente de validation du Président (montant > 25 000 FCFA).' : 'Opération enregistrée.';
       setOpMsg(message);
       showToast(message, data.statut === 'en_attente_validation' ? 'info' : 'succes');
