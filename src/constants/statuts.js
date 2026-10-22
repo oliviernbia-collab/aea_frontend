@@ -20,6 +20,7 @@ export const STATUT_COTISATION_LABELS = {
 export const STATUT_VALIDATION_LABELS = {
   valide: 'Validé',
   en_attente: 'En attente',
+  annulee: 'Annulé',
 };
 
 export const FONDS_LABELS = {
