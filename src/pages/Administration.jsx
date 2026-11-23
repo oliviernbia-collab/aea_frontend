@@ -3,6 +3,7 @@ import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import PasswordInput from '../components/PasswordInput';
+import VentesDocuments from '../components/VentesDocuments';
 import useLiveRefresh from '../hooks/useLiveRefresh';
 import { MOYENS_PAIEMENT } from '../constants/moyensPaiement';
 import { GROUPES_ROLES, ROLE_LABELS } from '../constants/roles';
@@ -151,13 +152,15 @@ export default function Administration() {
           { key: 'inscriptions', label: `Inscriptions (${enAttente.length})` },
           { key: 'membres', label: 'Membres' },
           { key: 'cotisations', label: 'Paramètres cotisations' },
-          ...(estSuperAdmin ? [{ key: 'infos', label: 'Informations membres' }] : []),
+          ...(estSuperAdmin ? [{ key: 'infos', label: 'Informations membres' }, { key: 'ventes', label: 'Ventes CV / cartes' }] : []),
         ].map((t) => (
           <button key={t.key} onClick={() => setOnglet(t.key)} className={`px-3 py-2 text-sm font-medium whitespace-nowrap ${onglet === t.key ? 'text-blue-800 dark:text-blue-300 border-b-2 border-blue-800' : 'text-slate-400'}`}>
             {t.label}
           </button>
         ))}
       </div>
+
+      {onglet === 'ventes' && estSuperAdmin && <VentesDocuments />}
 
       {onglet === 'inscriptions' && (
         <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow space-y-2">

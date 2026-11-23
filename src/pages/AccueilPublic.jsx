@@ -8,6 +8,7 @@ import affiche from '../assets/AEA1.webp';
 import globe from '../assets/globe.webp';
 import globe1 from '../assets/globe1.webp';
 import { useAuth } from '../context/AuthContext';
+import { TARIFS_DOCUMENTS } from '../constants/documents';
 
 const CATEGORIE_LABEL = {
   annonce_officielle: 'Annonce officielle',
@@ -58,6 +59,25 @@ export default function AccueilPublic() {
                 </Link>
               </>
             )}
+          </div>
+        </div>
+        {/* Services payants ouverts a tous : CV et carte de visite a telecharger en PDF. */}
+        <div className="border-y border-white/10 bg-blue-950/40">
+          <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-3 sm:flex-row sm:justify-center sm:gap-4">
+            <Link
+              to="/documents/cv"
+              className="relative z-50 flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-blue-900 shadow hover:bg-blue-50 transition"
+            >
+              <i className="fa-solid fa-file-lines" /> Je veux un CV
+              <span className="rounded-full bg-amber-500 px-2 py-0.5 text-xs text-white">{TARIFS_DOCUMENTS.cv} FCFA</span>
+            </Link>
+            <Link
+              to="/documents/carte-visite"
+              className="relative z-50 flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-amber-600 transition"
+            >
+              <i className="fa-solid fa-address-card" /> Je veux une carte de visite
+              <span className="rounded-full bg-white px-2 py-0.5 text-xs text-amber-600">{TARIFS_DOCUMENTS.carte_visite} FCFA</span>
+            </Link>
           </div>
         </div>
         <div className="mx-auto max-w-5xl px-4 pb-16 pt-8 text-center">

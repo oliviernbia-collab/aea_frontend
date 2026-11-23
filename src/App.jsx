@@ -21,6 +21,8 @@ import MonProfil from './pages/MonProfil';
 import JournalActivite from './pages/JournalActivite';
 import GestionPermissions from './pages/GestionPermissions';
 import Cartes from './pages/Cartes';
+import DocumentEditeur from './pages/DocumentEditeur';
+import CommandeDocument from './pages/CommandeDocument';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -38,6 +40,9 @@ export default function App() {
       <Route path="/" element={<AccueilPublic />} />
       <Route path="/connexion" element={user ? <Navigate to="/accueil" replace /> : <Connexion />} />
       <Route path="/inscription" element={user ? <Navigate to="/accueil" replace /> : <Inscription />} />
+      <Route path="/documents/cv" element={<DocumentEditeur key="cv" type="cv" />} />
+      <Route path="/documents/carte-visite" element={<DocumentEditeur key="carte_visite" type="carte_visite" />} />
+      <Route path="/documents/commande/:reference" element={<CommandeDocument />} />
       <Route path="/mot-de-passe-oublie" element={user ? <Navigate to="/accueil" replace /> : <MotDePasseOublie />} />
 
       <Route
