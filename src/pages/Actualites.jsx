@@ -95,7 +95,7 @@ export default function Actualites() {
                 <i className="fa-solid fa-trash" />
               </button>
             )}
-            {a.image && <img src={a.image} alt={a.titre} className="h-36 w-full object-cover" />}
+            {a.image && <img src={a.image} alt={a.titre} className="h-48 w-full object-contain bg-slate-100 dark:bg-slate-900" />}
             <div className="p-4">
               {a.epingle === 1 && (
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 mb-1">

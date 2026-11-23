@@ -96,7 +96,7 @@ export default function ActualiteDetail() {
             <input type="checkbox" checked={form.epingle} onChange={(e) => setForm((f) => ({ ...f, epingle: e.target.checked }))} />
             Épingler en haut du fil
           </label>
-          {actu.image && <img src={actu.image} alt="" className="h-24 rounded-lg object-cover" />}
+          {actu.image && <img src={actu.image} alt="" className="h-24 rounded-lg object-contain" />}
           <div>
             <label className="text-xs text-slate-500">Remplacer l'image (optionnel)</label>
             <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} className="w-full text-sm" />
@@ -110,7 +110,11 @@ export default function ActualiteDetail() {
         </form>
       ) : (
         <article className="rounded-xl bg-white dark:bg-slate-800 shadow overflow-hidden">
-          {actu.image && <img src={actu.image} alt={actu.titre} className="w-full max-h-80 object-cover" />}
+          {actu.image && (
+            <a href={actu.image} target="_blank" rel="noopener noreferrer" title="Ouvrir l'image en grand">
+              <img src={actu.image} alt={actu.titre} className="w-full h-auto bg-slate-100 dark:bg-slate-900" />
+            </a>
+          )}
           <div className="p-6">
             {actu.epingle === 1 && (
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 mb-2">

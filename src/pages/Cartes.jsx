@@ -14,6 +14,29 @@ function attendreRendu() {
   return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 }
 
+// Attend que chaque <img> de la carte (logos, photo Cloudinary du membre) soit reellement
+// chargee et decodee : capturer trop tot donnait des cartes incompletes dans le PDF.
+async function attendreImages(...noeuds) {
+  const images = noeuds.filter(Boolean).flatMap((n) => [...n.querySelectorAll('img')]);
+  await Promise.all(
+    images.map(async (img) => {
+      if (!img.complete) {
+        await new Promise((resolve) => {
+          img.addEventListener('load', resolve, { once: true });
+          img.addEventListener('error', resolve, { once: true });
+          setTimeout(resolve, 8000);
+        });
+      }
+      try {
+        await img.decode();
+      } catch {
+        // image en erreur : on capture quand meme le reste de la carte
+      }
+    })
+  );
+  if (document.fonts?.ready) await document.fonts.ready; // icones Font Awesome
+}
+
 export default function Cartes() {
   const { showToast } = useToast();
   const [membres, setMembres] = useState([]);
@@ -54,9 +77,15 @@ export default function Cartes() {
   const capturer = async (membre) => {
     setCaptureUser(membre);
     await attendreRendu();
-    await new Promise((r) => setTimeout(r, 200));
-    const rectoUrl = await toPng(rectoRef.current, { pixelRatio: 3, cacheBust: true });
-    const versoUrl = await toPng(versoRef.current, { pixelRatio: 3, cacheBust: true });
+    await attendreImages(rectoRef.current, versoRef.current);
+    await attendreRendu();
+    const options = { pixelRatio: 3, cacheBust: true };
+    // Premiere capture "a blanc" : html-to-image omet parfois des images/polices au tout premier
+    // passage (le temps de les embarquer) ; la seconde capture est alors complete.
+    await toPng(rectoRef.current, options);
+    const rectoUrl = await toPng(rectoRef.current, options);
+    await toPng(versoRef.current, options);
+    const versoUrl = await toPng(versoRef.current, options);
     return { rectoUrl, versoUrl };
   };
 

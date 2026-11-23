@@ -82,20 +82,19 @@ export default function GestionPermissions() {
       {/* Vue compacte (mobile/tablette) : un role a la fois, pour eviter de faire defiler
           horizontalement une matrice de 30+ colonnes sur un petit ecran. */}
       <div className="lg:hidden space-y-4">
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {rolesEditables.map((r) => (
-            <button
-              key={r}
-              onClick={() => setRoleActif(r)}
-              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs whitespace-nowrap ${
-                roleActif === r
-                  ? 'bg-blue-800 border-blue-800 text-white'
-                  : 'border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300'
-              }`}
-            >
-              {ROLE_LABELS[r] || r}
-            </button>
-          ))}
+        {/* Liste deroulante plutot qu'une rangee de 30+ pastilles a faire defiler au doigt. */}
+        <div className="rounded-xl bg-white dark:bg-slate-800 p-3 shadow">
+          <label htmlFor="role-actif" className="text-xs text-slate-500 dark:text-slate-400">Rôle à configurer</label>
+          <select
+            id="role-actif"
+            value={roleActif || ''}
+            onChange={(e) => setRoleActif(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-3 py-2.5 text-base"
+          >
+            {rolesEditables.map((r) => (
+              <option key={r} value={r}>{ROLE_LABELS[r] || r}</option>
+            ))}
+          </select>
         </div>
 
         {modules.map((module) => (
@@ -104,20 +103,27 @@ export default function GestionPermissions() {
             {permissions.filter((p) => p.module === module).map((p) => {
               const valeur = !!p.roles[roleActif];
               const cellId = `${p.key}:${roleActif}`;
+              const enCours = saving === cellId;
               return (
-                <div key={p.key} className="flex items-center justify-between gap-3 border-b border-slate-50 dark:border-slate-700/50 py-2 last:border-0">
+                // Toute la ligne est cliquable (label) : une case de 20px est trop petite au doigt.
+                <label
+                  key={p.key}
+                  className={`flex items-center justify-between gap-3 border-b border-slate-50 dark:border-slate-700/50 py-3 last:border-0 select-none ${
+                    enCours ? 'opacity-60' : 'cursor-pointer active:bg-slate-50 dark:active:bg-slate-700/50'
+                  }`}
+                >
                   <span className="text-sm text-slate-900 dark:text-white">{p.label}</span>
-                  {saving === cellId ? (
-                    <i className="fa-solid fa-circle-notch fa-spin text-slate-400 shrink-0" />
+                  {enCours ? (
+                    <i className="fa-solid fa-circle-notch fa-spin text-slate-400 shrink-0 w-6 text-center" />
                   ) : (
                     <input
                       type="checkbox"
                       checked={valeur}
                       onChange={() => basculer(p.key, roleActif, valeur)}
-                      className="h-5 w-5 shrink-0 accent-blue-800"
+                      className="h-6 w-6 shrink-0 accent-blue-800"
                     />
                   )}
-                </div>
+                </label>
               );
             })}
           </div>

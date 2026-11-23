@@ -1,10 +1,13 @@
 import { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 import CarteRectoVerso, { anneeAcademiqueParDefaut, declencherTelechargement, getTheme } from './CarteRectoVerso';
 
 export default function BadgeMembre({ user }) {
   const { showToast } = useToast();
+  const { refresh } = useAuth();
   const rectoRef = useRef(null);
   const versoRef = useRef(null);
   const [nomBadge, setNomBadge] = useState(user.nom);
@@ -12,6 +15,7 @@ export default function BadgeMembre({ user }) {
   const [anneeAcademique, setAnneeAcademique] = useState(anneeAcademiqueParDefaut());
   const [photoSrc, setPhotoSrc] = useState(user.photo || null);
   const [telechargement, setTelechargement] = useState(false);
+  const [envoiPhoto, setEnvoiPhoto] = useState(false);
 
   const theme = getTheme(user.role, user.statut);
 
@@ -23,7 +27,22 @@ export default function BadgeMembre({ user }) {
     const fichier = e.target.files[0];
     if (!fichier) return;
     const lecteur = new FileReader();
-    lecteur.onload = () => setPhotoSrc(lecteur.result);
+    lecteur.onload = async () => {
+      const dataUri = lecteur.result;
+      setPhotoSrc(dataUri);
+      // La photo du badge devient aussi la photo de profil : sinon elle ne vivait que dans le
+      // navigateur du membre et le bureau (Administration, Cartes) ne la voyait jamais.
+      setEnvoiPhoto(true);
+      try {
+        await api.put(`/membres/${user.id}`, { photo: dataUri });
+        showToast('Photo enregistrée sur votre profil.', 'succes');
+        refresh();
+      } catch (err) {
+        showToast(err.response?.data?.message || "La photo n'a pas pu être enregistrée sur votre profil.", 'erreur');
+      } finally {
+        setEnvoiPhoto(false);
+      }
+    };
     lecteur.readAsDataURL(fichier);
   };
 
@@ -83,7 +102,12 @@ export default function BadgeMembre({ user }) {
           </div>
           <div>
             <label className="text-xs text-slate-500">Photo pour le badge</label>
-            <input type="file" accept="image/*" onChange={changerPhoto} className="w-full text-sm" />
+            <input type="file" accept="image/*" onChange={changerPhoto} disabled={envoiPhoto} className="w-full text-sm" />
+            {envoiPhoto && (
+              <p className="text-xs text-slate-400 mt-1">
+                <i className="fa-solid fa-circle-notch fa-spin mr-1" />Enregistrement de la photo...
+              </p>
+            )}
           </div>
           <div>
             <label className="text-xs text-slate-500">Numéro de membre</label>
