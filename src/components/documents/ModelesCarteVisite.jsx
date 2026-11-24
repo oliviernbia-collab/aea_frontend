@@ -14,6 +14,11 @@ export const MODELES_CARTE = [
   { id: 'vague', nom: 'Vague bleue', description: 'Blanc et vagues bleues' },
   { id: 'neon', nom: 'Néon', description: 'Bleu nuit et anneau lumineux' },
   { id: 'emeraude', nom: 'Émeraude', description: 'Vert profond et filets dorés' },
+  { id: 'minimal', nom: 'Minimaliste', description: 'Blanc, noir, épuré' },
+  { id: 'violet', nom: 'Violet', description: 'Dégradé violet en diagonale' },
+  { id: 'orange_noir', nom: 'Orange & Noir', description: 'Bandes obliques dynamiques' },
+  { id: 'turquoise', nom: 'Turquoise', description: 'Cercles frais et lumineux' },
+  { id: 'ivoire', nom: 'Ivoire', description: 'Crème et or, très raffiné' },
 ];
 
 export const CARTE_EXEMPLE = {
@@ -305,7 +310,167 @@ const emeraude = {
   ),
 };
 
-const RENDUS = { or_noir: orNoir, rouge, vague, neon, emeraude };
+// ------------------------------------------------------------------ MINIMALISTE
+const minimal = {
+  recto: (d) => (
+    <div style={{ position: 'absolute', inset: 0, background: '#fff' }}>
+      <Centre>
+        <Logo d={d} taille="3.6em" couleur="#111" bordure="1.5px solid #111" />
+        <div style={{ fontSize: '1.45em', letterSpacing: '0.3em', textTransform: 'uppercase', color: '#111', marginTop: '0.6em' }}>{marque(d)}</div>
+        <div style={{ width: '3em', height: 1, background: '#111', margin: '0.5em 0' }} />
+        {accroche(d) && <div style={{ fontSize: '0.72em', letterSpacing: '0.25em', textTransform: 'uppercase', color: '#555' }}>{accroche(d)}</div>}
+      </Centre>
+    </div>
+  ),
+  verso: (d) => (
+    <div style={{ position: 'absolute', inset: 0, background: '#fff', padding: '1.8em 2em' }}>
+      <div style={{ fontSize: '1.5em', fontWeight: 300, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#111' }}>
+        {d.prenom} <span style={{ fontWeight: 700 }}>{d.nom}</span>
+      </div>
+      {d.fonction && <div style={{ fontSize: '0.75em', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#666', marginTop: '0.2em' }}>{d.fonction}</div>}
+      <div style={{ width: '2.5em', height: 1, background: '#111', margin: '0.9em 0' }} />
+      <Contacts d={d} couleurIcone="#111" fondIcone="transparent" couleurTexte="#222" />
+      <div style={{ position: 'absolute', right: '1.6em', bottom: '1.4em' }}><QR d={d} taille={42} couleur="#111" /></div>
+    </div>
+  ),
+};
+
+// ------------------------------------------------------------------ VIOLET
+const DEGRADE_VIOLET = 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 45%, #db2777 100%)';
+const violet = {
+  recto: (d) => (
+    <div style={{ position: 'absolute', inset: 0, background: DEGRADE_VIOLET }}>
+      <svg viewBox="0 0 340 220" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} preserveAspectRatio="none">
+        <polygon points="0,0 120,0 0,110" fill="#fff" opacity="0.08" />
+        <polygon points="340,220 200,220 340,90" fill="#fff" opacity="0.1" />
+      </svg>
+      <Centre>
+        <Logo d={d} taille="3.8em" couleur="#fff" bordure="2px solid #fff" />
+        <div style={{ color: '#fff', fontWeight: 700, fontSize: '1.45em', marginTop: '0.4em' }}>{marque(d)}</div>
+        {accroche(d) && <div style={{ color: '#f5d0fe', fontSize: '0.78em' }}>{accroche(d)}</div>}
+      </Centre>
+    </div>
+  ),
+  verso: (d) => (
+    <div style={{ position: 'absolute', inset: 0, background: '#fff' }}>
+      <svg viewBox="0 0 340 220" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="violetV" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#7c3aed" /><stop offset="1" stopColor="#db2777" />
+          </linearGradient>
+        </defs>
+        <polygon points="230,0 340,0 340,220 160,220" fill="url(#violetV)" />
+      </svg>
+      <div style={{ position: 'absolute', left: '1.8em', top: '1.8em', width: '17em' }}>
+        <div style={{ fontWeight: 800, fontSize: '1.4em', color: '#4c1d95', lineHeight: 1.1 }}>{nomComplet(d)}</div>
+        {d.fonction && <div style={{ color: '#db2777', fontSize: '0.82em', fontWeight: 600 }}>{d.fonction}</div>}
+        <div style={{ marginTop: '1em' }}><Contacts d={d} couleurIcone="#fff" fondIcone="#7c3aed" couleurTexte="#1f2937" /></div>
+      </div>
+      <div style={{ position: 'absolute', right: '1.4em', top: '1.4em' }}><Logo d={d} taille="2.6em" couleur="#fff" bordure="2px solid #fff" /></div>
+      <div style={{ position: 'absolute', right: '1.4em', bottom: '1.3em' }}><QR d={d} taille={42} couleur="#4c1d95" /></div>
+    </div>
+  ),
+};
+
+// ------------------------------------------------------------------ ORANGE & NOIR
+const BANDES = (
+  <>
+    <polygon points="210,0 260,0 150,220 100,220" fill="#f97316" />
+    <polygon points="270,0 290,0 180,220 160,220" fill="#fb923c" />
+    <polygon points="300,0 340,0 340,30 230,220 190,220" fill="#f97316" />
+  </>
+);
+const orangeNoir = {
+  recto: (d) => (
+    <div style={{ position: 'absolute', inset: 0, background: '#111' }}>
+      <svg viewBox="0 0 340 220" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} preserveAspectRatio="none">{BANDES}</svg>
+      <div style={{ position: 'absolute', left: '2em', top: 0, bottom: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '15em' }}>
+        <Logo d={d} taille="3.4em" couleur="#f97316" bordure="2px solid #f97316" />
+        <div style={{ color: '#fff', fontWeight: 800, fontSize: '1.4em', textTransform: 'uppercase', marginTop: '0.5em', lineHeight: 1.1 }}>{marque(d)}</div>
+        {accroche(d) && <div style={{ color: '#fdba74', fontSize: '0.78em' }}>{accroche(d)}</div>}
+      </div>
+    </div>
+  ),
+  verso: (d) => (
+    <div style={{ position: 'absolute', inset: 0, background: '#fff' }}>
+      <svg viewBox="0 0 340 220" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} preserveAspectRatio="none">
+        <polygon points="0,0 340,0 340,52 0,52" fill="#111" />
+        <polygon points="230,0 262,0 236,52 204,52" fill="#f97316" />
+        <polygon points="270,0 284,0 258,52 244,52" fill="#fb923c" />
+        <rect x="0" y="210" width="340" height="10" fill="#f97316" />
+      </svg>
+      <div style={{ position: 'absolute', left: '1.6em', top: '0.9em', color: '#fff' }}>
+        <div style={{ fontWeight: 800, fontSize: '1.3em', textTransform: 'uppercase', lineHeight: 1.1 }}>{nomComplet(d)}</div>
+        {d.fonction && <div style={{ color: '#fdba74', fontSize: '0.75em' }}>{d.fonction}</div>}
+      </div>
+      <div style={{ position: 'absolute', left: '1.6em', top: '7em', right: '7em' }}>
+        <Contacts d={d} couleurIcone="#fff" fondIcone="#f97316" couleurTexte="#111" carre />
+      </div>
+      <div style={{ position: 'absolute', right: '1.4em', bottom: '1.6em' }}><QR d={d} taille={44} couleur="#111" /></div>
+    </div>
+  ),
+};
+
+// ------------------------------------------------------------------ TURQUOISE
+const turquoise = {
+  recto: (d) => (
+    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, #0891b2, #0e7490)' }}>
+      <div style={{ position: 'absolute', width: '14em', height: '14em', borderRadius: '50%', background: '#22d3ee', opacity: 0.35, left: '-4em', top: '-5em' }} />
+      <div style={{ position: 'absolute', width: '10em', height: '10em', borderRadius: '50%', background: '#a5f3fc', opacity: 0.3, right: '-2.5em', bottom: '-3em' }} />
+      <Centre>
+        <Logo d={d} taille="4em" couleur="#0e7490" fond="#fff" bordure="none" />
+        <div style={{ color: '#fff', fontWeight: 700, fontSize: '1.4em', marginTop: '0.4em' }}>{marque(d)}</div>
+        {accroche(d) && <div style={{ color: '#cffafe', fontSize: '0.78em' }}>{accroche(d)}</div>}
+      </Centre>
+    </div>
+  ),
+  verso: (d) => (
+    <div style={{ position: 'absolute', inset: 0, background: '#f0fdfa' }}>
+      <div style={{ position: 'absolute', width: '11em', height: '11em', borderRadius: '50%', background: 'linear-gradient(160deg, #0891b2, #0e7490)', right: '-3em', top: '-3.5em' }} />
+      <div style={{ position: 'absolute', width: '5em', height: '5em', borderRadius: '50%', background: '#22d3ee', opacity: 0.5, right: '5.5em', top: '4.5em' }} />
+      <div style={{ position: 'absolute', right: '1.3em', top: '1.2em' }}><Logo d={d} taille="2.8em" couleur="#0e7490" fond="#fff" bordure="none" /></div>
+      <div style={{ position: 'absolute', left: '1.8em', top: '1.7em', right: '9em' }}>
+        <div style={{ fontWeight: 800, fontSize: '1.4em', color: '#134e4a', lineHeight: 1.1 }}>{nomComplet(d)}</div>
+        {d.fonction && <div style={{ color: '#0891b2', fontSize: '0.82em', fontWeight: 600 }}>{d.fonction}</div>}
+      </div>
+      <div style={{ position: 'absolute', left: '1.8em', top: '7.3em', right: '6.5em' }}>
+        <Contacts d={d} couleurIcone="#fff" fondIcone="#0891b2" couleurTexte="#134e4a" />
+      </div>
+      <div style={{ position: 'absolute', right: '1.4em', bottom: '1.3em' }}><QR d={d} taille={42} couleur="#134e4a" /></div>
+    </div>
+  ),
+};
+
+// ------------------------------------------------------------------ IVOIRE
+const SERIF = "Georgia, 'Times New Roman', serif";
+const ivoire = {
+  recto: (d) => (
+    <div style={{ position: 'absolute', inset: 0, background: '#faf6ee' }}>
+      <div style={{ position: 'absolute', inset: '0.9em', border: '1px solid #b7832a' }} />
+      <div style={{ position: 'absolute', inset: '1.2em', border: '0.5px solid #d6b56b' }} />
+      <Centre>
+        <Logo d={d} taille="3.6em" couleur="#8a5a14" bordure="1.5px solid #b7832a" />
+        <div style={{ fontFamily: SERIF, fontSize: '1.6em', color: '#3b2a12', marginTop: '0.45em', letterSpacing: '0.05em' }}>{marque(d)}</div>
+        {accroche(d) && <div style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: '0.85em', color: '#8a5a14' }}>{accroche(d)}</div>}
+      </Centre>
+    </div>
+  ),
+  verso: (d) => (
+    <div style={{ position: 'absolute', inset: 0, background: '#faf6ee' }}>
+      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '0.7em', background: 'linear-gradient(180deg, #d6b56b, #8a5a14)' }} />
+      <div style={{ position: 'absolute', left: '2.2em', top: '1.8em', right: '7em' }}>
+        <div style={{ fontFamily: SERIF, fontSize: '1.65em', color: '#3b2a12', lineHeight: 1.1 }}>{nomComplet(d)}</div>
+        {d.fonction && <div style={{ fontFamily: SERIF, fontStyle: 'italic', color: '#8a5a14', fontSize: '0.9em' }}>{d.fonction}</div>}
+        <div style={{ width: '3em', height: 1, background: '#b7832a', margin: '0.8em 0' }} />
+        <Contacts d={d} couleurIcone="#8a5a14" fondIcone="transparent" couleurTexte="#3b2a12" />
+      </div>
+      <div style={{ position: 'absolute', right: '1.5em', top: '1.5em' }}><Logo d={d} taille="2.6em" couleur="#8a5a14" bordure="1.5px solid #b7832a" /></div>
+      <div style={{ position: 'absolute', right: '1.5em', bottom: '1.4em' }}><QR d={d} taille={42} couleur="#3b2a12" fond="#faf6ee" /></div>
+    </div>
+  ),
+};
+
+const RENDUS = { or_noir: orNoir, rouge, vague, neon, emeraude, minimal, violet, orange_noir: orangeNoir, turquoise, ivoire };
 
 // Une face (recto ou verso) d'une carte de visite, a sa taille reelle.
 export function FaceCarte({ modele, donnees, face, faceRef }) {

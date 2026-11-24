@@ -178,7 +178,7 @@ export default function DocumentEditeur({ type }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 space-y-6">
+      <main className="mx-auto max-w-6xl px-4 pt-6 pb-24 lg:pb-6 space-y-6">
         <div>
           <h1 className="text-2xl font-bold">{config.titre}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">{config.sousTitre}</p>
@@ -229,13 +229,13 @@ export default function DocumentEditeur({ type }) {
 
         <section>
           <h2 className="font-semibold mb-2">1. Choisissez un modèle</h2>
-          <div className="flex gap-3 overflow-x-auto pb-2">
+          <div className="flex gap-3 overflow-x-auto pb-2 lg:grid lg:grid-cols-5 lg:overflow-visible">
             {config.modeles.map((m) => (
               <button
                 key={m.id}
                 type="button"
                 onClick={() => setModele(m.id)}
-                className={`shrink-0 w-36 sm:w-44 rounded-xl p-2 text-left transition border-2 ${
+                className={`shrink-0 w-36 sm:w-44 lg:w-auto rounded-xl p-2 text-left transition border-2 ${
                   modele === m.id ? 'border-blue-700 bg-blue-50 dark:bg-blue-900/30' : 'border-transparent bg-white dark:bg-slate-800 hover:border-slate-300'
                 }`}
               >
@@ -257,8 +257,8 @@ export default function DocumentEditeur({ type }) {
           </div>
         </section>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,460px)] items-start">
-          <form onSubmit={payer} className="space-y-4 order-2 lg:order-1">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)] items-start">
+          <form onSubmit={payer} className="min-w-0 space-y-4 order-2 lg:order-1">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="font-semibold">2. Remplissez vos informations</h2>
               <div className="flex gap-2">
@@ -368,7 +368,7 @@ export default function DocumentEditeur({ type }) {
               </>
             )}
 
-            <section className="rounded-xl bg-white dark:bg-slate-800 p-4 shadow space-y-3 border-2 border-amber-400">
+            <section id="paiement" className="rounded-xl bg-white dark:bg-slate-800 p-4 shadow space-y-3 border-2 border-amber-400 scroll-mt-4">
               <h2 className="font-semibold">3. Payez et téléchargez</h2>
               <p className="text-sm text-slate-600 dark:text-slate-300">
                 Prix : <strong className="text-lg text-slate-900 dark:text-white">{prix} FCFA</strong> — paiement Mobile Money. Après paiement, votre {type === 'cv' ? 'CV' : 'carte de visite'} est
@@ -406,13 +406,24 @@ export default function DocumentEditeur({ type }) {
             </section>
           </form>
 
-          <aside className="order-1 lg:order-2 lg:sticky lg:top-4 space-y-2">
+          <aside id="apercu" className="min-w-0 order-1 lg:order-2 lg:sticky lg:top-4 space-y-2 scroll-mt-4">
             <h2 className="font-semibold">Aperçu</h2>
             <Apercu type={type} modele={modele} donnees={donnees} filigrane largeurMax={type === 'cv' ? 460 : 420} />
             <p className="text-xs text-slate-400 text-center">Le filigrane « APERÇU » disparaît sur le PDF acheté.</p>
           </aside>
         </div>
       </main>
+
+      {/* Telephone/tablette : l'apercu est en haut de page et le paiement tout en bas d'un long
+          formulaire ; cette barre permet d'y revenir a tout moment sans faire defiler. */}
+      <div className="lg:hidden fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur px-4 py-2 flex gap-2" style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
+        <button type="button" onClick={() => document.getElementById('apercu')?.scrollIntoView({ behavior: 'smooth' })} className="flex-1 rounded-lg border border-slate-300 dark:border-slate-600 py-2.5 text-sm font-medium">
+          <i className="fa-solid fa-eye mr-1" /> Aperçu
+        </button>
+        <button type="button" onClick={() => document.getElementById('paiement')?.scrollIntoView({ behavior: 'smooth' })} className="flex-1 rounded-lg bg-amber-500 text-white py-2.5 text-sm font-semibold">
+          <i className="fa-solid fa-lock mr-1" /> Payer {prix} FCFA
+        </button>
+      </div>
     </div>
   );
 }

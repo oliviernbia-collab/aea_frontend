@@ -158,11 +158,11 @@ export default function CommandeDocument() {
         )}
 
         {commande?.statut === 'success' && commande.donnees && (
-          <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,320px)] items-start">
-            <div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,320px)] items-start">
+            <div className="min-w-0">
               <Apercu type={commande.type} modele={commande.modele} donnees={commande.donnees} largeurMax={commande.type === 'cv' ? 560 : 480} />
             </div>
-            <div className="rounded-xl bg-white dark:bg-slate-800 p-5 shadow space-y-3 md:sticky md:top-4">
+            <div className="min-w-0 rounded-xl bg-white dark:bg-slate-800 p-5 shadow space-y-3 md:sticky md:top-4">
               <p className="font-semibold text-emerald-700 dark:text-emerald-400">
                 <i className="fa-solid fa-circle-check mr-1" /> Paiement confirmé, merci !
               </p>

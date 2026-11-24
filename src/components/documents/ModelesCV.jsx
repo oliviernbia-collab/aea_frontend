@@ -22,6 +22,11 @@ export const MODELES_CV = [
   { id: 'dynamique', nom: 'Dynamique', description: 'Bandeaux bleus et barres de niveau' },
   { id: 'eclat', nom: 'Éclat', description: 'Bleu profond et touches orange' },
   { id: 'bandeau', nom: 'Bandeau', description: 'Grand en-tête, accents jaunes' },
+  { id: 'minimal', nom: 'Minimaliste', description: 'Noir et blanc, sobre et classique' },
+  { id: 'emeraude', nom: 'Émeraude', description: 'Colonne verte à droite' },
+  { id: 'bordeaux', nom: 'Bordeaux', description: 'En-tête bordeaux, deux colonnes' },
+  { id: 'etudiant', nom: 'Étudiant', description: 'Colonne arrondie, barres de niveau' },
+  { id: 'corail', nom: 'Corail', description: 'Moderne, sections en blocs' },
 ];
 
 export const CV_EXEMPLE = {
@@ -496,7 +501,369 @@ function Bandeau({ d }) {
   );
 }
 
-const RENDUS = { moderne: Moderne, elegant: Elegant, dynamique: Dynamique, eclat: Eclat, bandeau: Bandeau };
+// ---------------------------------------------------------------- 6. MINIMALISTE
+function Minimal({ d }) {
+  const Titre = ({ children }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8em', margin: '1.5em 0 0.7em' }}>
+      <span style={{ fontWeight: 700, letterSpacing: '0.25em', textTransform: 'uppercase', fontSize: '0.95em', color: '#111827' }}>{children}</span>
+      <span style={{ flex: 1, height: 1, background: '#111827' }} />
+    </div>
+  );
+  return (
+    <div style={{ padding: '3.2em 3.6em', height: '100%' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '2em' }}>
+        {d.photo && <Photo src={d.photo} taille="7.5em" bordure="1px solid #111827" />}
+        <div style={{ flex: 1, textAlign: d.photo ? 'left' : 'center' }}>
+          <div style={{ fontSize: '2.6em', fontWeight: 300, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#111827', lineHeight: 1.1 }}>
+            {d.prenom} <span style={{ fontWeight: 700 }}>{d.nom}</span>
+          </div>
+          {d.titre && <div style={{ letterSpacing: '0.3em', textTransform: 'uppercase', color: '#6b7280', marginTop: '0.5em', fontSize: '0.95em' }}>{d.titre}</div>}
+          {contacts(d).length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4em 1.4em', marginTop: '0.9em', fontSize: '0.88em', color: '#374151', justifyContent: d.photo ? 'flex-start' : 'center' }}>
+              {contacts(d).map((c) => (
+                <span key={c.icone}><i className={`fa-solid ${c.icone}`} style={{ marginRight: '0.4em' }} />{c.valeur}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      {d.profil && (<><Titre>Profil</Titre><Paragraphe texte={d.profil} /></>)}
+      {experiencesRemplies(d).length > 0 && (
+        <>
+          <Titre>Expérience</Titre>
+          {experiencesRemplies(d).map((e, i) => (
+            <div key={i} style={{ marginBottom: '0.9em' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1em' }}>
+                <span style={{ fontWeight: 700 }}>{e.poste}{e.entreprise && <span style={{ fontWeight: 400, color: '#4b5563' }}> — {e.entreprise}</span>}</span>
+                <span style={{ color: '#6b7280', whiteSpace: 'nowrap', fontSize: '0.92em' }}>{e.periode}</span>
+              </div>
+              <div style={{ fontSize: '0.93em', marginTop: '0.2em' }}><ListePuces texte={e.details} couleur="#111827" /></div>
+            </div>
+          ))}
+        </>
+      )}
+      {formationsRemplies(d).length > 0 && (
+        <>
+          <Titre>Formation</Titre>
+          {formationsRemplies(d).map((f, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: '1em', marginBottom: '0.6em' }}>
+              <span><strong>{f.diplome}</strong>{f.etablissement && <span style={{ color: '#4b5563' }}> — {f.etablissement}</span>}</span>
+              <span style={{ color: '#6b7280', whiteSpace: 'nowrap', fontSize: '0.92em' }}>{f.periode}</span>
+            </div>
+          ))}
+        </>
+      )}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '2.5em' }}>
+        {d.competences && <div><Titre>Compétences</Titre><ListePuces texte={d.competences} couleur="#111827" /></div>}
+        {d.langues && <div><Titre>Langues</Titre><ListePuces texte={d.langues} couleur="#111827" /></div>}
+        {d.qualites && <div><Titre>Qualités</Titre><ListePuces texte={d.qualites} couleur="#111827" /></div>}
+        {d.interets && <div><Titre>Intérêts</Titre><ListePuces texte={d.interets} couleur="#111827" /></div>}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- 7. EMERAUDE
+function Emeraude({ d }) {
+  const vert = '#065f46';
+  const Titre = ({ icone, children, clair }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6em', margin: '1.4em 0 0.7em', color: clair ? '#ecfdf5' : vert, fontWeight: 800, textTransform: 'uppercase', fontSize: '1.1em', letterSpacing: '0.05em' }}>
+      <i className={`fa-solid ${icone}`} /> {children}
+    </div>
+  );
+  return (
+    <div style={{ display: 'flex', height: '100%' }}>
+      <main style={{ flex: 1, padding: '3em 2.4em' }}>
+        <div style={{ borderLeft: `0.45em solid ${vert}`, paddingLeft: '1em' }}>
+          <div style={{ fontSize: '2.7em', fontWeight: 800, lineHeight: 1.05, color: '#111827' }}>{d.prenom}</div>
+          <div style={{ fontSize: '2.7em', fontWeight: 800, lineHeight: 1.05, color: vert, textTransform: 'uppercase' }}>{d.nom}</div>
+          {d.titre && <div style={{ fontSize: '1.15em', color: '#374151', marginTop: '0.4em' }}>{d.titre}</div>}
+        </div>
+        {d.profil && (<><Titre icone="fa-user">Profil</Titre><Paragraphe texte={d.profil} /></>)}
+        {experiencesRemplies(d).length > 0 && (
+          <>
+            <Titre icone="fa-briefcase">Expérience professionnelle</Titre>
+            {experiencesRemplies(d).map((e, i) => (
+              <div key={i} style={{ marginBottom: '1em', paddingLeft: '1em', borderLeft: '2px solid #a7f3d0' }}>
+                <div style={{ fontSize: '0.9em', color: vert, fontWeight: 700 }}>{e.periode}</div>
+                <div style={{ fontWeight: 700 }}>{e.poste}</div>
+                {e.entreprise && <div style={{ color: '#4b5563', fontSize: '0.93em' }}>{e.entreprise}</div>}
+                <div style={{ fontSize: '0.92em', marginTop: '0.2em' }}><ListePuces texte={e.details} couleur={vert} /></div>
+              </div>
+            ))}
+          </>
+        )}
+        {formationsRemplies(d).length > 0 && (
+          <>
+            <Titre icone="fa-graduation-cap">Formation</Titre>
+            {formationsRemplies(d).map((f, i) => (
+              <div key={i} style={{ marginBottom: '0.8em', paddingLeft: '1em', borderLeft: '2px solid #a7f3d0' }}>
+                <div style={{ fontSize: '0.9em', color: vert, fontWeight: 700 }}>{f.periode}</div>
+                <div style={{ fontWeight: 700 }}>{f.diplome}</div>
+                <div style={{ color: '#4b5563', fontSize: '0.93em' }}>{f.etablissement}</div>
+              </div>
+            ))}
+          </>
+        )}
+      </main>
+      <aside style={{ width: '34%', background: `linear-gradient(180deg, ${vert}, #064e3b)`, color: '#ecfdf5', padding: '3em 1.8em' }}>
+        <Photo src={d.photo} taille="11.5em" bordure="0.4em solid #a7f3d0" style={{ margin: '0 auto' }} />
+        {contacts(d).length > 0 && (
+          <>
+            <Titre icone="fa-address-book" clair>Contact</Titre>
+            {contacts(d).map((c) => (
+              <div key={c.icone} style={{ display: 'flex', gap: '0.7em', marginBottom: '0.5em', fontSize: '0.9em', wordBreak: 'break-word' }}>
+                <i className={`fa-solid ${c.icone}`} style={{ color: '#6ee7b7', marginTop: '0.25em' }} /> {c.valeur}
+              </div>
+            ))}
+          </>
+        )}
+        {d.competences && (<><Titre icone="fa-gears" clair>Compétences</Titre><ListePuces texte={d.competences} couleur="#6ee7b7" /></>)}
+        {d.langues && (<><Titre icone="fa-language" clair>Langues</Titre><ListePuces texte={d.langues} couleur="#6ee7b7" /></>)}
+        {d.qualites && (<><Titre icone="fa-star" clair>Qualités</Titre><ListePuces texte={d.qualites} couleur="#6ee7b7" /></>)}
+        {d.interets && (<><Titre icone="fa-heart" clair>Intérêts</Titre><ListePuces texte={d.interets} couleur="#6ee7b7" /></>)}
+      </aside>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- 8. BORDEAUX
+function Bordeaux({ d }) {
+  const rouge = '#7f1d1d';
+  const Titre = ({ children }) => (
+    <div style={{ background: rouge, color: '#fff', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0.35em 0.9em', borderRadius: '0 2em 2em 0', margin: '1.4em 0 0.8em -2.4em', paddingLeft: '2.4em', width: 'fit-content', minWidth: '60%' }}>
+      {children}
+    </div>
+  );
+  const TitreGauche = ({ children }) => (
+    <div style={{ fontWeight: 800, color: rouge, textTransform: 'uppercase', borderBottom: `2px solid ${rouge}`, paddingBottom: '0.25em', margin: '1.4em 0 0.6em' }}>{children}</div>
+  );
+  return (
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <header style={{ background: `linear-gradient(120deg, ${rouge}, #991b1b)`, color: '#fff', padding: '2.2em 2.6em', display: 'flex', alignItems: 'center', gap: '2em', borderBottomRightRadius: '5em' }}>
+        <Photo src={d.photo} taille="9.5em" bordure="0.3em solid #fff" />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: '2.5em', fontWeight: 800, textTransform: 'uppercase', lineHeight: 1.05 }}>{d.prenom} {d.nom}</div>
+          {d.titre && <div style={{ fontSize: '1.15em', marginTop: '0.3em', color: '#fecaca' }}>{d.titre}</div>}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3em 1.2em', marginTop: '0.8em', fontSize: '0.85em' }}>
+            {contacts(d).map((c) => (
+              <span key={c.icone}><i className={`fa-solid ${c.icone}`} style={{ marginRight: '0.4em', color: '#fecaca' }} />{c.valeur}</span>
+            ))}
+          </div>
+        </div>
+      </header>
+      <div style={{ flex: 1, display: 'flex', gap: '2.2em', padding: '0.6em 2.4em 2em' }}>
+        <aside style={{ width: '32%' }}>
+          {d.competences && (<><TitreGauche>Compétences</TitreGauche><ListePuces texte={d.competences} couleur={rouge} /></>)}
+          {d.langues && (<><TitreGauche>Langues</TitreGauche><ListePuces texte={d.langues} couleur={rouge} /></>)}
+          {d.qualites && (<><TitreGauche>Qualités</TitreGauche><ListePuces texte={d.qualites} couleur={rouge} /></>)}
+          {d.interets && (<><TitreGauche>Centres d’intérêt</TitreGauche><ListePuces texte={d.interets} couleur={rouge} /></>)}
+        </aside>
+        <main style={{ flex: 1, paddingLeft: '2.4em', borderLeft: '1px solid #e5e7eb' }}>
+          {d.profil && (<><Titre>Profil professionnel</Titre><Paragraphe texte={d.profil} /></>)}
+          {formationsRemplies(d).length > 0 && (
+            <>
+              <Titre>Formation</Titre>
+              {formationsRemplies(d).map((f, i) => (
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: '7.5em 1fr', gap: '0.8em', marginBottom: '0.7em' }}>
+                  <span style={{ background: '#fee2e2', color: rouge, fontWeight: 700, fontSize: '0.85em', borderRadius: '0.3em', padding: '0.2em 0.5em', height: 'fit-content', textAlign: 'center' }}>{f.periode}</span>
+                  <div><strong>{f.diplome}</strong><div style={{ color: '#4b5563', fontSize: '0.93em' }}>{f.etablissement}</div></div>
+                </div>
+              ))}
+            </>
+          )}
+          {experiencesRemplies(d).length > 0 && (
+            <>
+              <Titre>Expériences</Titre>
+              {experiencesRemplies(d).map((e, i) => (
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: '7.5em 1fr', gap: '0.8em', marginBottom: '0.9em' }}>
+                  <span style={{ background: '#fee2e2', color: rouge, fontWeight: 700, fontSize: '0.85em', borderRadius: '0.3em', padding: '0.2em 0.5em', height: 'fit-content', textAlign: 'center' }}>{e.periode}</span>
+                  <div>
+                    <strong>{e.poste}</strong>{e.entreprise && <span style={{ color: '#4b5563' }}> — {e.entreprise}</span>}
+                    {lignes(e.details).map((l) => <div key={l} style={{ fontSize: '0.93em' }}>- {l}</div>)}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- 9. ETUDIANT
+function Etudiant({ d }) {
+  const bleu = '#0c2d5e';
+  const ciel = '#60a5fa';
+  const TitreGauche = ({ icone, children }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6em', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: '0.3em', margin: '1.4em 0 0.7em' }}>
+      <i className={`fa-solid ${icone}`} style={{ color: ciel }} /> {children}
+    </div>
+  );
+  const Titre = ({ icone, children }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6em', fontWeight: 800, color: bleu, textTransform: 'uppercase', fontSize: '1.1em', margin: '1.4em 0 0.7em' }}>
+      <i className={`fa-solid ${icone}`} /> {children}
+    </div>
+  );
+  return (
+    <div style={{ display: 'flex', height: '100%', padding: '1.8em', background: '#eef2f7' }}>
+      <aside style={{ width: '34%', background: bleu, color: '#e2e8f0', borderRadius: '1.2em 0 0 1.2em', padding: '0 1.6em 2em', position: 'relative' }}>
+        <div style={{ background: '#fff', margin: '0 -1.6em', padding: '1.6em 0 1.2em', borderBottomRightRadius: '6em', display: 'flex', justifyContent: 'center' }}>
+          <Photo src={d.photo} taille="10em" bordure={`0.35em solid ${bleu}`} />
+        </div>
+        {contacts(d).length > 0 && (
+          <>
+            <TitreGauche icone="fa-address-card">Contact</TitreGauche>
+            {contacts(d).map((c) => (
+              <div key={c.icone} style={{ display: 'flex', gap: '0.7em', marginBottom: '0.5em', fontSize: '0.88em', wordBreak: 'break-word' }}>
+                <i className={`fa-solid ${c.icone}`} style={{ marginTop: '0.25em', color: ciel }} /> {c.valeur}
+              </div>
+            ))}
+          </>
+        )}
+        {d.langues && (
+          <>
+            <TitreGauche icone="fa-language">Langues</TitreGauche>
+            {lignes(d.langues).map((l) => {
+              const { langue, niveau } = decouperLangue(l);
+              return (
+                <div key={l} style={{ marginBottom: '0.55em', fontSize: '0.88em' }}>
+                  <div>{langue}</div>
+                  <div style={{ height: '0.4em', background: 'rgba(255,255,255,0.2)', borderRadius: 9, marginTop: '0.2em' }}>
+                    <div style={{ height: '100%', width: `${niveauEnPourcentage(niveau)}%`, background: ciel, borderRadius: 9 }} />
+                  </div>
+                </div>
+              );
+            })}
+          </>
+        )}
+        {d.competences && (<><TitreGauche icone="fa-lightbulb">Compétences</TitreGauche><ListePuces texte={d.competences} couleur={ciel} style={{ fontSize: '0.92em' }} /></>)}
+        {d.interets && (<><TitreGauche icone="fa-heart">Centres d’intérêt</TitreGauche><ListePuces texte={d.interets} couleur={ciel} style={{ fontSize: '0.92em' }} /></>)}
+      </aside>
+      <main style={{ flex: 1, background: '#fff', borderRadius: '0 1.2em 1.2em 0', padding: '2.4em 2.2em' }}>
+        <div style={{ fontSize: '2.6em', fontWeight: 800, color: bleu, textTransform: 'uppercase', lineHeight: 1.05 }}>{d.prenom} {d.nom}</div>
+        {d.titre && <div style={{ color: '#2563eb', fontWeight: 600, fontSize: '1.1em', marginTop: '0.3em', textTransform: 'uppercase' }}>{d.titre}</div>}
+        <Paragraphe texte={d.profil} style={{ marginTop: '0.8em' }} />
+        {formationsRemplies(d).length > 0 && (
+          <>
+            <Titre icone="fa-graduation-cap">Formation</Titre>
+            {formationsRemplies(d).map((f, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: '1em', marginBottom: '0.6em' }}>
+                <div><div style={{ fontWeight: 700, color: '#1e3a8a' }}>{f.diplome}</div><div style={{ color: '#2563eb', fontSize: '0.92em' }}>{f.etablissement}</div></div>
+                <span style={{ whiteSpace: 'nowrap', fontWeight: 600, fontSize: '0.9em' }}>{f.periode}</span>
+              </div>
+            ))}
+          </>
+        )}
+        {experiencesRemplies(d).length > 0 && (
+          <>
+            <Titre icone="fa-briefcase">Expériences</Titre>
+            {experiencesRemplies(d).map((e, i) => (
+              <div key={i} style={{ marginBottom: '0.9em' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1em' }}>
+                  <span style={{ fontWeight: 700, color: '#1e3a8a' }}>{[e.poste, e.entreprise].filter(Boolean).join(' | ')}</span>
+                  <span style={{ whiteSpace: 'nowrap', fontWeight: 600, fontSize: '0.9em' }}>{e.periode}</span>
+                </div>
+                <div style={{ fontSize: '0.92em', marginTop: '0.2em' }}><ListePuces texte={e.details} couleur="#2563eb" /></div>
+              </div>
+            ))}
+          </>
+        )}
+        {d.qualites && (<><Titre icone="fa-star">Qualités</Titre><ListePuces texte={d.qualites} couleur="#2563eb" /></>)}
+      </main>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- 10. CORAIL
+function Corail({ d }) {
+  const corail = '#f25f4c';
+  const sarcelle = '#0f766e';
+  const Carte = ({ titre, icone, children }) => (
+    <div style={{ background: '#fff', borderRadius: '0.8em', padding: '1em 1.2em', marginBottom: '1em', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6em', fontWeight: 800, color: sarcelle, textTransform: 'uppercase', marginBottom: '0.6em', fontSize: '1.02em' }}>
+        <span style={{ width: '1.9em', height: '1.9em', borderRadius: '0.5em', background: corail, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85em' }}>
+          <i className={`fa-solid ${icone}`} />
+        </span>
+        {titre}
+      </div>
+      {children}
+    </div>
+  );
+  return (
+    <div style={{ height: '100%', background: '#fdf2ef', padding: '2.4em 2.4em 0', position: 'relative' }}>
+      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '0.6em', background: corail }} />
+      <header style={{ display: 'flex', alignItems: 'center', gap: '1.8em', marginBottom: '1.4em' }}>
+        <Photo src={d.photo} taille="9em" rond={false} bordure={`0.3em solid ${corail}`} />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: '2.6em', fontWeight: 800, color: sarcelle, lineHeight: 1.05 }}>
+            {d.prenom} <span style={{ color: corail }}>{d.nom}</span>
+          </div>
+          {d.titre && <div style={{ fontSize: '1.15em', fontWeight: 600, color: '#374151', marginTop: '0.3em' }}>{d.titre}</div>}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3em 1.2em', marginTop: '0.7em', fontSize: '0.85em', color: '#374151' }}>
+            {contacts(d).map((c) => (
+              <span key={c.icone}><i className={`fa-solid ${c.icone}`} style={{ marginRight: '0.4em', color: corail }} />{c.valeur}</span>
+            ))}
+          </div>
+        </div>
+      </header>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '1em', alignItems: 'start' }}>
+        <div>
+          {d.profil && <Carte titre="Profil" icone="fa-user"><Paragraphe texte={d.profil} /></Carte>}
+          {experiencesRemplies(d).length > 0 && (
+            <Carte titre="Expérience" icone="fa-briefcase">
+              {experiencesRemplies(d).map((e, i) => (
+                <div key={i} style={{ marginBottom: '0.8em' }}>
+                  <div style={{ fontWeight: 700 }}>{e.poste}</div>
+                  <div style={{ fontSize: '0.9em', color: corail, fontWeight: 600 }}>{[e.entreprise, e.periode].filter(Boolean).join(' • ')}</div>
+                  <div style={{ fontSize: '0.92em', marginTop: '0.2em' }}><ListePuces texte={e.details} couleur={sarcelle} /></div>
+                </div>
+              ))}
+            </Carte>
+          )}
+          {formationsRemplies(d).length > 0 && (
+            <Carte titre="Formation" icone="fa-graduation-cap">
+              {formationsRemplies(d).map((f, i) => (
+                <div key={i} style={{ marginBottom: '0.6em' }}>
+                  <div style={{ fontWeight: 700 }}>{f.diplome}</div>
+                  <div style={{ fontSize: '0.9em', color: corail, fontWeight: 600 }}>{[f.etablissement, f.periode].filter(Boolean).join(' • ')}</div>
+                </div>
+              ))}
+            </Carte>
+          )}
+        </div>
+        <div>
+          {d.competences && (
+            <Carte titre="Compétences" icone="fa-screwdriver-wrench">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4em' }}>
+                {lignes(d.competences).map((c) => (
+                  <span key={c} style={{ background: '#ccfbf1', color: sarcelle, borderRadius: '1em', padding: '0.2em 0.7em', fontSize: '0.88em' }}>{c}</span>
+                ))}
+              </div>
+            </Carte>
+          )}
+          {d.langues && <Carte titre="Langues" icone="fa-language"><ListePuces texte={d.langues} couleur={corail} /></Carte>}
+          {d.qualites && <Carte titre="Qualités" icone="fa-star"><ListePuces texte={d.qualites} couleur={corail} /></Carte>}
+          {d.interets && <Carte titre="Intérêts" icone="fa-heart"><ListePuces texte={d.interets} couleur={corail} /></Carte>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const RENDUS = {
+  moderne: Moderne,
+  elegant: Elegant,
+  dynamique: Dynamique,
+  eclat: Eclat,
+  bandeau: Bandeau,
+  minimal: Minimal,
+  emeraude: Emeraude,
+  bordeaux: Bordeaux,
+  etudiant: Etudiant,
+  corail: Corail,
+};
 
 const TAILLE_BASE = 14.5;
 const TAILLE_MIN = 9;
